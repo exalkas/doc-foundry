@@ -1,0 +1,2370 @@
+{
+  "screens": [
+    {
+      "id": "S_auth_login",
+      "name": "Login",
+      "route": "/login",
+      "purpose": "Authenticate user via email/password or Google OAuth.",
+      "roles_allowed": ["guest"],
+      "components": [
+        {
+          "type": "layout",
+          "id": "auth_layout",
+          "description": "Centered auth card with DocFoundry branding.",
+          "components": [
+            {
+              "type": "logo",
+              "id": "brand_logo",
+              "library": "custom",
+              "props": {
+                "className": "mx-auto mb-6 h-8"
+              }
+            },
+            {
+              "type": "typography",
+              "id": "title",
+              "component": "shadcn/TypographyH2",
+              "props": {
+                "children": "Sign in to DocFoundry",
+                "className": "text-center mb-2"
+              }
+            },
+            {
+              "type": "typography",
+              "id": "subtitle",
+              "component": "shadcn/TypographyP",
+              "props": {
+                "children": "Forge any document into clean, usable data.",
+                "className": "text-center text-muted-foreground mb-6"
+              }
+            },
+            {
+              "type": "button",
+              "id": "google_login_button",
+              "component": "shadcn/Button",
+              "icon": "lucide:Chrome",
+              "props": {
+                "variant": "outline",
+                "className": "w-full mb-4",
+                "children": "Continue with Google"
+              }
+            },
+            {
+              "type": "separator",
+              "id": "or_separator",
+              "component": "shadcn/Separator",
+              "props": {
+                "className": "my-4"
+              }
+            },
+            {
+              "type": "form",
+              "id": "login_form",
+              "component": "shadcn/Form",
+              "fields": [
+                {
+                  "name": "email",
+                  "label": "Email",
+                  "component": "shadcn/Input",
+                  "type": "email",
+                  "validation": "required|email"
+                },
+                {
+                  "name": "password",
+                  "label": "Password",
+                  "component": "shadcn/Input",
+                  "type": "password",
+                  "validation": "required",
+                  "extra": {
+                    "forgot_password_link": {
+                      "route": "/forgot-password",
+                      "text": "Forgot password?",
+                      "className": "text-xs text-primary hover:underline"
+                    }
+                  }
+                }
+              ],
+              "actions": [
+                {
+                  "id": "submit",
+                  "label": "Sign in",
+                  "component": "shadcn/Button",
+                  "props": {
+                    "type": "submit",
+                    "className": "w-full"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "link",
+              "id": "register_link",
+              "component": "next/Link",
+              "props": {
+                "href": "/register",
+                "children": "Don’t have an account? Start free trial",
+                "className": "mt-4 block text-center text-sm text-muted-foreground hover:text-primary"
+              }
+            }
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "element_id": "google_login_button",
+          "event": "onClick",
+          "action": "Trigger Google OAuth flow; on success set JWT cookie and redirect to /app."
+        },
+        {
+          "element_id": "login_form",
+          "event": "onSubmit",
+          "action": "POST /api/auth/login; on success store JWT cookie, fetch /api/auth/me, redirect to last workspace route (/app). On error, show shadcn/AlertDestructive."
+        },
+        {
+          "element_id": "register_link",
+          "event": "onClick",
+          "action": "Navigate to /register."
+        }
+      ]
+    },
+    {
+      "id": "S_auth_register",
+      "name": "Register",
+      "route": "/register",
+      "purpose": "User registration and initial company creation.",
+      "roles_allowed": ["guest"],
+      "components": [
+        {
+          "type": "layout",
+          "id": "auth_layout",
+          "description": "Similar to login, with extra fields.",
+          "components": [
+            {
+              "type": "logo",
+              "id": "brand_logo",
+              "library": "custom"
+            },
+            {
+              "type": "typography",
+              "id": "title",
+              "component": "shadcn/TypographyH2",
+              "props": {
+                "children": "Start your free trial",
+                "className": "text-center mb-2"
+              }
+            },
+            {
+              "type": "typography",
+              "id": "subtitle",
+              "component": "shadcn/TypographyP",
+              "props": {
+                "children": "Create your account and first company.",
+                "className": "text-center text-muted-foreground mb-6"
+              }
+            },
+            {
+              "type": "button",
+              "id": "google_register_button",
+              "component": "shadcn/Button",
+              "icon": "lucide:Chrome",
+              "props": {
+                "variant": "outline",
+                "className": "w-full mb-4",
+                "children": "Continue with Google"
+              }
+            },
+            {
+              "type": "separator",
+              "id": "or_separator",
+              "component": "shadcn/Separator",
+              "props": {
+                "className": "my-4"
+              }
+            },
+            {
+              "type": "form",
+              "id": "register_form",
+              "component": "shadcn/Form",
+              "fields": [
+                {
+                  "name": "full_name",
+                  "label": "Full name",
+                  "component": "shadcn/Input",
+                  "type": "text",
+                  "validation": "required"
+                },
+                {
+                  "name": "email",
+                  "label": "Work email",
+                  "component": "shadcn/Input",
+                  "type": "email",
+                  "validation": "required|email"
+                },
+                {
+                  "name": "password",
+                  "label": "Password",
+                  "component": "shadcn/Input",
+                  "type": "password",
+                  "validation": "required|min:8"
+                },
+                {
+                  "name": "workspace_name",
+                  "label": "Company name",
+                  "component": "shadcn/Input",
+                  "type": "text",
+                  "placeholder": "e.g. Acme Logistics",
+                  "validation": "required"
+                }
+              ],
+              "actions": [
+                {
+                  "id": "submit",
+                  "label": "Create account",
+                  "component": "shadcn/Button",
+                  "props": {
+                    "type": "submit",
+                    "className": "w-full"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "link",
+              "id": "login_link",
+              "component": "next/Link",
+              "props": {
+                "href": "/login",
+                "children": "Already have an account? Sign in",
+                "className": "mt-4 block text-center text-sm text-muted-foreground hover:text-primary"
+              }
+            }
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "element_id": "google_register_button",
+          "event": "onClick",
+          "action": "Trigger Google OAuth registration; on success create workspace and redirect to /app/onboarding."
+        },
+        {
+          "element_id": "register_form",
+          "event": "onSubmit",
+          "action": "POST /api/auth/register with full_name, email, password, workspace_name; set JWT cookie; redirect to /app/onboarding for first-time setup."
+        },
+        {
+          "element_id": "login_link",
+          "event": "onClick",
+          "action": "Navigate to /login."
+        }
+      ]
+    },
+    {
+      "id": "S_onboarding",
+      "name": "Company Onboarding",
+      "route": "/app/onboarding",
+      "purpose": "Guide new users through creating first project, uploading document, and creating first template.",
+      "roles_allowed": ["owner", "member"],
+      "components": [
+        {
+          "type": "layout",
+          "id": "onboarding_layout",
+          "description": "Full-width wizard with stepper.",
+          "components": [
+            {
+              "type": "breadcrumbs",
+              "id": "onboarding_breadcrumbs",
+              "component": "shadcn/Breadcrumb",
+              "items": [
+                "Welcome",
+                "Create project",
+                "Upload sample",
+                "Define template",
+                "Run first extraction"
+              ]
+            },
+            {
+              "type": "steps",
+              "id": "onboarding_steps",
+              "component": "shadcn/Steps",
+              "steps": [
+                "Welcome",
+                "Create project",
+                "Upload document",
+                "Configure template",
+                "Review extraction"
+              ]
+            },
+            {
+              "type": "card",
+              "id": "step_container",
+              "component": "shadcn/Card",
+              "props": {
+                "className": "mt-6"
+              }
+            }
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "element_id": "onboarding_steps",
+          "event": "onChangeStep",
+          "action": "For each step, render appropriate form: project create (POST /api/projects), upload (POST /api/documents), template create (POST /api/templates), run extraction (poll /api/documents/:id). Upon completion, redirect to /app."
+        }
+      ]
+    },
+    {
+      "id": "S_dashboard_main",
+      "name": "User Dashboard",
+      "route": "/app",
+      "purpose": "Company overview: projects, recent activity, usage, and quick actions.",
+      "roles_allowed": ["owner", "member", "readonly"],
+      "components": [
+        {
+          "type": "layout",
+          "id": "app_shell",
+          "description": "Shared shell used across /app routes.",
+          "components": [
+            {
+              "type": "header",
+              "id": "main_header",
+              "component": "shadcn/Header",
+              "fields": [
+                {
+                  "id": "workspace_switcher",
+                  "component": "shadcn/Popover + Command",
+                  "icon": "lucide:Building2",
+                  "props": {
+                    "className": "w-56"
+                  }
+                },
+                {
+                  "id": "branding_logo",
+                  "component": "custom/WorkspaceLogo",
+                  "props": {
+                    "className": "h-6"
+                  }
+                },
+                {
+                  "id": "user_menu",
+                  "component": "shadcn/DropdownMenu",
+                  "icon": "lucide:User",
+                  "items": [
+                    "Profile",
+                    "Company settings",
+                    "Admin (if admin)",
+                    "Sign out"
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "sidebar",
+              "id": "main_nav",
+              "component": "shadcn/Sidebar",
+              "items": [
+                {
+                  "label": "Dashboard",
+                  "icon": "lucide:LayoutDashboard",
+                  "href": "/app"
+                },
+                {
+                  "label": "Projects",
+                  "icon": "lucide:Folders",
+                  "href": "/app/projects"
+                },
+                {
+                  "label": "Templates",
+                  "icon": "lucide:FileCode2",
+                  "href": "/app/templates"
+                },
+                {
+                  "label": "Upload",
+                  "icon": "lucide:UploadCloud",
+                  "href": "/app/upload"
+                },
+                {
+                  "label": "Documents",
+                  "icon": "lucide:FileText",
+                  "href": "/app/documents"
+                },
+                {
+                  "label": "Integrations",
+                  "icon": "lucide:Workflow",
+                  "href": "/app/integrations"
+                },
+                {
+                  "label": "Usage & Billing",
+                  "icon": "lucide:CreditCard",
+                  "href": "/app/settings/usage-billing"
+                },
+                {
+                  "label": "Settings",
+                  "icon": "lucide:Settings",
+                  "href": "/app/settings"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "page_content",
+          "id": "dashboard_content",
+          "components": [
+            {
+              "type": "section",
+              "id": "usage_summary",
+              "component": "shadcn/Card",
+              "header": {
+                "title": "This period",
+                "icon": "lucide:Activity"
+              },
+              "fields": [
+                "current_plan",
+                "documents_processed_this_month",
+                "pages_processed_this_month",
+                "plan_limit_indicator"
+              ]
+            },
+            {
+              "type": "button_group",
+              "id": "quick_actions",
+              "buttons": [
+                {
+                  "id": "upload_document",
+                  "label": "Upload documents",
+                  "component": "shadcn/Button",
+                  "icon": "lucide:UploadCloud"
+                },
+                {
+                  "id": "create_template",
+                  "label": "New template",
+                  "component": "shadcn/Button",
+                  "variant": "outline",
+                  "icon": "lucide:FileCode"
+                },
+                {
+                  "id": "view_api_keys",
+                  "label": "API keys",
+                  "component": "shadcn/Button",
+                  "variant": "ghost",
+                  "icon": "lucide:KeyRound"
+                }
+              ]
+            },
+            {
+              "type": "grid",
+              "id": "dashboard_lists",
+              "columns": 2,
+              "components": [
+                {
+                  "type": "list",
+                  "id": "recent_projects",
+                  "component": "shadcn/Table",
+                  "title": "Recent projects",
+                  "columns": ["project_name", "document_count", "last_updated"]
+                },
+                {
+                  "type": "list",
+                  "id": "latest_extractions",
+                  "component": "shadcn/Table",
+                  "title": "Latest extractions",
+                  "columns": [
+                    "document_name",
+                    "status",
+                    "template_used",
+                    "processed_at"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "element_id": "workspace_switcher",
+          "event": "onSelect",
+          "action": "Switch current workspace in context, refetch dashboard data via /api/auth/me and relevant endpoints."
+        },
+        {
+          "element_id": "upload_document",
+          "event": "onClick",
+          "action": "Navigate to /app/upload, preserving selected project if any."
+        },
+        {
+          "element_id": "create_template",
+          "event": "onClick",
+          "action": "Open new template modal or navigate to /app/templates/new (if implemented)."
+        },
+        {
+          "element_id": "view_api_keys",
+          "event": "onClick",
+          "action": "Navigate to /app/settings/api-keys."
+        },
+        {
+          "element_id": "recent_projects",
+          "event": "onRowClick",
+          "action": "Navigate to /app/projects/:projectId."
+        },
+        {
+          "element_id": "latest_extractions",
+          "event": "onRowClick",
+          "action": "Navigate to /app/documents/:documentId."
+        }
+      ]
+    },
+    {
+      "id": "S_projects_list",
+      "name": "Project Folders",
+      "route": "/app/projects",
+      "purpose": "Organize documents and templates into project folders.",
+      "roles_allowed": ["owner", "member", "readonly"],
+      "components": [
+        {
+          "type": "page_header",
+          "id": "projects_header",
+          "components": [
+            {
+              "type": "typography",
+              "id": "title",
+              "component": "shadcn/TypographyH2",
+              "props": {
+                "children": "Projects"
+              }
+            },
+            {
+              "type": "button",
+              "id": "create_project_button",
+              "component": "shadcn/Button",
+              "icon": "lucide:FolderPlus",
+              "props": {
+                "children": "New project"
+              },
+              "visibility": {
+                "roles": ["owner", "member"]
+              }
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "id": "projects_table",
+          "component": "shadcn/DataTable",
+          "columns": [
+            {
+              "key": "name",
+              "label": "Name"
+            },
+            {
+              "key": "description",
+              "label": "Description"
+            },
+            {
+              "key": "document_count",
+              "label": "Documents"
+            },
+            {
+              "key": "template_count",
+              "label": "Templates"
+            },
+            {
+              "key": "created_at",
+              "label": "Created"
+            },
+            {
+              "key": "actions",
+              "label": "",
+              "component": "shadcn/DropdownMenu",
+              "icon": "lucide:MoreVertical",
+              "actions": ["open_project", "rename", "delete_project"]
+            }
+          ]
+        },
+        {
+          "type": "modal",
+          "id": "project_create_modal",
+          "component": "shadcn/Dialog",
+          "title": "Create project",
+          "form": {
+            "id": "project_create_form",
+            "component": "shadcn/Form",
+            "fields": [
+              {
+                "name": "name",
+                "label": "Project name",
+                "component": "shadcn/Input",
+                "validation": "required"
+              },
+              {
+                "name": "description",
+                "label": "Description",
+                "component": "shadcn/Textarea"
+              }
+            ]
+          }
+        },
+        {
+          "type": "modal",
+          "id": "project_rename_modal",
+          "component": "shadcn/Dialog",
+          "title": "Rename project",
+          "form": {
+            "id": "project_rename_form",
+            "component": "shadcn/Form",
+            "fields": [
+              {
+                "name": "name",
+                "label": "Project name",
+                "component": "shadcn/Input",
+                "validation": "required"
+              }
+            ]
+          }
+        },
+        {
+          "type": "modal",
+          "id": "project_delete_modal",
+          "component": "shadcn/AlertDialog",
+          "title": "Delete project?",
+          "description": "This will not delete already processed documents, but will remove the folder organization.",
+          "actions": [
+            {
+              "id": "confirm_delete",
+              "label": "Delete",
+              "component": "shadcn/Button",
+              "variant": "destructive"
+            }
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "element_id": "create_project_button",
+          "event": "onClick",
+          "action": "Open project_create_modal."
+        },
+        {
+          "element_id": "project_create_form",
+          "event": "onSubmit",
+          "action": "POST /api/projects; on success, close modal and refresh projects_table."
+        },
+        {
+          "element_id": "projects_table",
+          "event": "onRowClick",
+          "action": "Navigate to /app/projects/:projectId."
+        },
+        {
+          "element_id": "projects_table",
+          "event": "onAction:rename",
+          "action": "Open project_rename_modal prefilled with project data."
+        },
+        {
+          "element_id": "project_rename_form",
+          "event": "onSubmit",
+          "action": "PUT /api/projects/:projectId; on success refresh table."
+        },
+        {
+          "element_id": "projects_table",
+          "event": "onAction:delete_project",
+          "action": "Open project_delete_modal; on confirm call DELETE /api/projects/:projectId and refresh."
+        }
+      ]
+    },
+    {
+      "id": "S_project_detail",
+      "name": "Project Detail",
+      "route": "/app/projects/:projectId",
+      "purpose": "View and manage documents and templates for a specific project.",
+      "roles_allowed": ["owner", "member", "readonly"],
+      "components": [
+        {
+          "type": "page_header",
+          "id": "project_header",
+          "components": [
+            {
+              "type": "breadcrumbs",
+              "id": "project_breadcrumbs",
+              "component": "shadcn/Breadcrumb",
+              "items": [
+                {
+                  "label": "Projects",
+                  "href": "/app/projects"
+                },
+                {
+                  "label": "Current project",
+                  "href": null
+                }
+              ]
+            },
+            {
+              "type": "typography",
+              "id": "title",
+              "component": "shadcn/TypographyH2",
+              "props": {
+                "children": "Project name"
+              }
+            }
+          ]
+        },
+        {
+          "type": "tabs",
+          "id": "project_tabs",
+          "component": "shadcn/Tabs",
+          "tabs": [
+            {
+              "value": "documents",
+              "label": "Documents"
+            },
+            {
+              "value": "templates",
+              "label": "Templates"
+            }
+          ]
+        },
+        {
+          "type": "tab_content",
+          "tab": "documents",
+          "components": [
+            {
+              "type": "button",
+              "id": "upload_document_in_project",
+              "component": "shadcn/Button",
+              "icon": "lucide:UploadCloud",
+              "props": {
+                "children": "Upload documents"
+              },
+              "visibility": {
+                "roles": ["owner", "member"]
+              }
+            },
+            {
+              "type": "table",
+              "id": "documents_table",
+              "component": "shadcn/DataTable",
+              "columns": [
+                "file_name",
+                "status",
+                "template",
+                "uploaded_by",
+                "uploaded_at",
+                "pages",
+                {
+                  "key": "actions",
+                  "label": "",
+                  "component": "shadcn/DropdownMenu",
+                  "actions": ["view_extraction", "retry_extraction"]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "tab_content",
+          "tab": "templates",
+          "components": [
+            {
+              "type": "button",
+              "id": "create_template_in_project",
+              "component": "shadcn/Button",
+              "icon": "lucide:FileCode2",
+              "props": {
+                "children": "New template"
+              },
+              "visibility": {
+                "roles": ["owner", "member"]
+              }
+            },
+            {
+              "type": "table",
+              "id": "templates_table",
+              "component": "shadcn/DataTable",
+              "columns": [
+                "name",
+                "document_type",
+                "last_run",
+                "success_rate",
+                {
+                  "key": "actions",
+                  "label": "",
+                  "component": "shadcn/DropdownMenu",
+                  "actions": [
+                    "edit_template",
+                    "duplicate_template",
+                    "delete_template"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "element_id": "upload_document_in_project",
+          "event": "onClick",
+          "action": "Navigate to /app/upload?projectId=:projectId."
+        },
+        {
+          "element_id": "documents_table",
+          "event": "onRowClick",
+          "action": "Navigate to /app/documents/:documentId."
+        },
+        {
+          "element_id": "documents_table",
+          "event": "onAction:retry_extraction",
+          "action": "POST /api/documents/:documentId/retry; show toast; update status via polling."
+        },
+        {
+          "element_id": "create_template_in_project",
+          "event": "onClick",
+          "action": "Navigate to /app/templates/new?projectId=:projectId."
+        },
+        {
+          "element_id": "templates_table",
+          "event": "onAction:edit_template",
+          "action": "Navigate to /app/templates/:templateId/edit."
+        },
+        {
+          "element_id": "templates_table",
+          "event": "onAction:duplicate_template",
+          "action": "POST /api/templates/:templateId/duplicate (if available) or handled client-side; redirect to edit new template."
+        },
+        {
+          "element_id": "templates_table",
+          "event": "onAction:delete_template",
+          "action": "Open confirm dialog; on confirm DELETE /api/templates/:templateId and refresh list."
+        }
+      ]
+    },
+    {
+      "id": "S_document_upload",
+      "name": "Document Upload Form",
+      "route": "/app/upload",
+      "purpose": "Upload one or more documents for processing.",
+      "roles_allowed": ["owner", "member"],
+      "components": [
+        {
+          "type": "page_header",
+          "id": "upload_header",
+          "components": [
+            {
+              "type": "typography",
+              "id": "title",
+              "component": "shadcn/TypographyH2",
+              "props": {
+                "children": "Upload documents"
+              }
+            },
+            {
+              "type": "typography",
+              "id": "subtitle",
+              "component": "shadcn/TypographyP",
+              "props": {
+                "children": "Upload PDFs, images, or scans up to 25 MB each."
+              }
+            }
+          ]
+        },
+        {
+          "type": "form",
+          "id": "upload_form",
+          "component": "shadcn/Form",
+          "fields": [
+            {
+              "name": "project_id",
+              "label": "Project",
+              "component": "shadcn/Select",
+              "placeholder": "Select project",
+              "options_source": "/api/projects"
+            },
+            {
+              "name": "template_id",
+              "label": "Extraction template",
+              "component": "shadcn/Select",
+              "placeholder": "Optional — choose template to auto-run",
+              "options_source": "/api/templates"
+            },
+            {
+              "name": "files",
+              "label": "Files",
+              "component": "shadcn/Dropzone",
+              "accept": ".pdf,image/*",
+              "multiple": true,
+              "maxSizeMB": 25
+            },
+            {
+              "name": "priority_flag",
+              "label": "High priority",
+              "component": "shadcn/Switch",
+              "description": "Send to the front of the processing queue where possible."
+            }
+          ],
+          "actions": [
+            {
+              "id": "upload_and_process",
+              "label": "Upload and process",
+              "component": "shadcn/Button",
+              "icon": "lucide:Play",
+              "props": {
+                "type": "submit"
+              }
+            },
+            {
+              "id": "cancel",
+              "label": "Cancel",
+              "component": "shadcn/Button",
+              "variant": "ghost"
+            }
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "element_id": "upload_form",
+          "event": "onSubmit",
+          "action": "For each file, POST multipart to /api/documents with project_id, template_id, file; on success show toast and link to /app/projects/:projectId or first document's preview."
+        },
+        {
+          "element_id": "cancel",
+          "event": "onClick",
+          "action": "Navigate back to previous page or /app."
+        }
+      ]
+    },
+    {
+      "id": "S_templates_list",
+      "name": "Templates List",
+      "route": "/app/templates",
+      "purpose": "View and manage all company templates (cross-project).",
+      "roles_allowed": ["owner", "member", "readonly"],
+      "components": [
+        {
+          "type": "page_header",
+          "id": "templates_header",
+          "components": [
+            {
+              "type": "typography",
+              "id": "title",
+              "component": "shadcn/TypographyH2",
+              "props": {
+                "children": "Templates"
+              }
+            },
+            {
+              "type": "button",
+              "id": "create_template_global",
+              "component": "shadcn/Button",
+              "icon": "lucide:FileCode2",
+              "props": {
+                "children": "New template"
+              },
+              "visibility": {
+                "roles": ["owner", "member"]
+              }
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "id": "templates_table_global",
+          "component": "shadcn/DataTable",
+          "columns": [
+            "name",
+            "project",
+            "document_type",
+            "last_run",
+            "success_rate"
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "element_id": "create_template_global",
+          "event": "onClick",
+          "action": "Navigate to /app/templates/new."
+        },
+        {
+          "element_id": "templates_table_global",
+          "event": "onRowClick",
+          "action": "Navigate to /app/templates/:templateId/edit."
+        }
+      ]
+    },
+    {
+      "id": "S_template_editor",
+      "name": "Template Editor",
+      "route": "/app/templates/:templateId/edit",
+      "purpose": "Create and edit extraction templates and field mappings with preview.",
+      "roles_allowed": ["owner", "member"],
+      "components": [
+        {
+          "type": "page_header",
+          "id": "template_header",
+          "components": [
+            {
+              "type": "breadcrumbs",
+              "id": "template_breadcrumbs",
+              "component": "shadcn/Breadcrumb",
+              "items": [
+                {
+                  "label": "Templates",
+                  "href": "/app/templates"
+                },
+                {
+                  "label": "Editor",
+                  "href": null
+                }
+              ]
+            },
+            {
+              "type": "button_group",
+              "id": "template_actions",
+              "buttons": [
+                {
+                  "id": "run_test_extraction",
+                  "label": "Run test",
+                  "component": "shadcn/Button",
+                  "variant": "outline",
+                  "icon": "lucide:PlayCircle"
+                },
+                {
+                  "id": "save_template",
+                  "label": "Save template",
+                  "component": "shadcn/Button",
+                  "icon": "lucide:Save"
+                },
+                {
+                  "id": "delete_template",
+                  "label": "",
+                  "component": "shadcn/IconButton",
+                  "icon": "lucide:Trash2",
+                  "variant": "ghost",
+                  "className": "text-destructive"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "grid",
+          "id": "template_editor_grid",
+          "columns": 2,
+          "components": [
+            {
+              "type": "card",
+              "id": "template_settings",
+              "component": "shadcn/Card",
+              "title": "Template settings",
+              "form": {
+                "component": "shadcn/Form",
+                "fields": [
+                  {
+                    "name": "template_name",
+                    "label": "Name",
+                    "component": "shadcn/Input",
+                    "validation": "required"
+                  },
+                  {
+                    "name": "description",
+                    "label": "Description",
+                    "component": "shadcn/Textarea"
+                  },
+                  {
+                    "name": "document_type",
+                    "label": "Document type",
+                    "component": "shadcn/Input",
+                    "placeholder": "e.g. Invoice, Packing slip"
+                  },
+                  {
+                    "name": "default_export_format",
+                    "label": "Default export",
+                    "component": "shadcn/Select",
+                    "options": [
+                      {
+                        "value": "json",
+                        "label": "JSON"
+                      },
+                      {
+                        "value": "csv",
+                        "label": "CSV"
+                      },
+                      {
+                        "value": "excel",
+                        "label": "Excel"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "test_document_id",
+                    "label": "Test document",
+                    "component": "shadcn/Select",
+                    "placeholder": "Choose uploaded sample",
+                    "options_source": "/api/documents?status=succeeded"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "card",
+              "id": "field_definitions",
+              "component": "shadcn/Card",
+              "title": "Fields",
+              "description": "Define fields and map them to JSON keys.",
+              "components": [
+                {
+                  "type": "button",
+                  "id": "add_field_button",
+                  "component": "shadcn/Button",
+                  "variant": "outline",
+                  "icon": "lucide:Plus",
+                  "props": {
+                    "children": "Add field"
+                  }
+                },
+                {
+                  "type": "list",
+                  "id": "fields_list",
+                  "component": "shadcn/Accordion",
+                  "item_template": {
+                    "header": "field_name (json_key)",
+                    "body_form": {
+                      "fields": [
+                        {
+                          "name": "field_name",
+                          "label": "Field label",
+                          "component": "shadcn/Input"
+                        },
+                        {
+                          "name": "json_key",
+                          "label": "JSON key",
+                          "component": "shadcn/Input"
+                        },
+                        {
+                          "name": "data_type",
+                          "label": "Data type",
+                          "component": "shadcn/Select",
+                          "options": ["string", "number", "date", "boolean"]
+                        },
+                        {
+                          "name": "required",
+                          "label": "Required",
+                          "component": "shadcn/Checkbox"
+                        },
+                        {
+                          "name": "default_value",
+                          "label": "Default value",
+                          "component": "shadcn/Input"
+                        },
+                        {
+                          "name": "validation_rules",
+                          "label": "Validation (optional)",
+                          "component": "shadcn/Textarea",
+                          "placeholder": "e.g. regex, min/max"
+                        }
+                      ]
+                    },
+                    "actions": [
+                      {
+                        "id": "delete_field",
+                        "component": "shadcn/IconButton",
+                        "icon": "lucide:Trash2"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "card",
+          "id": "template_json_preview",
+          "component": "shadcn/Card",
+          "title": "Sample output",
+          "components": [
+            {
+              "type": "tabs",
+              "id": "preview_tabs",
+              "component": "shadcn/Tabs",
+              "tabs": [
+                {
+                  "value": "json",
+                  "label": "JSON"
+                },
+                {
+                  "value": "table",
+                  "label": "Table"
+                },
+                {
+                  "value": "logs",
+                  "label": "Logs"
+                }
+              ]
+            },
+            {
+              "type": "code_view",
+              "id": "preview_json",
+              "visible_when_tab": "json",
+              "component": "shadcn/CodeBlock",
+              "fields": ["sample_output_json"]
+            },
+            {
+              "type": "table",
+              "id": "preview_table",
+              "visible_when_tab": "table",
+              "component": "shadcn/Table",
+              "columns": ["key", "value"]
+            },
+            {
+              "type": "log_view",
+              "id": "preview_logs",
+              "visible_when_tab": "logs",
+              "component": "shadcn/ScrollArea",
+              "columns": ["timestamp", "level", "message"]
+            }
+          ]
+        },
+        {
+          "type": "modal",
+          "id": "delete_template_modal",
+          "component": "shadcn/AlertDialog",
+          "title": "Delete template?",
+          "description": "Existing extraction results stay, but this template cannot be reused.",
+          "actions": [
+            {
+              "id": "confirm_delete",
+              "label": "Delete",
+              "component": "shadcn/Button",
+              "variant": "destructive"
+            }
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "element_id": "save_template",
+          "event": "onClick",
+          "action": "PUT /api/templates/:templateId with settings + field_schema; on success show success toast."
+        },
+        {
+          "element_id": "run_test_extraction",
+          "event": "onClick",
+          "action": "POST /api/templates/:templateId/test (or equivalent); then poll /api/documents/:id and render preview_json, preview_table, preview_logs."
+        },
+        {
+          "element_id": "delete_template",
+          "event": "onClick",
+          "action": "Open delete_template_modal."
+        },
+        {
+          "element_id": "delete_template_modal",
+          "event": "onAction:confirm_delete",
+          "action": "DELETE /api/templates/:templateId; on success redirect to /app/templates."
+        },
+        {
+          "element_id": "add_field_button",
+          "event": "onClick",
+          "action": "Append new field to field_schema and update fields_list."
+        }
+      ]
+    },
+    {
+      "id": "S_extraction_preview",
+      "name": "Extraction Preview",
+      "route": "/app/documents/:documentId",
+      "purpose": "View extraction results, status, logs, and export actions.",
+      "roles_allowed": ["owner", "member", "readonly"],
+      "components": [
+        {
+          "type": "page_header",
+          "id": "document_header",
+          "components": [
+            {
+              "type": "breadcrumbs",
+              "id": "doc_breadcrumbs",
+              "component": "shadcn/Breadcrumb",
+              "items": [
+                {
+                  "label": "Projects",
+                  "href": "/app/projects"
+                },
+                {
+                  "label": "Project",
+                  "href": "/app/projects/:projectId"
+                },
+                {
+                  "label": "Document",
+                  "href": null
+                }
+              ]
+            },
+            {
+              "type": "button_group",
+              "id": "export_buttons",
+              "buttons": [
+                {
+                  "id": "download_json",
+                  "label": "JSON",
+                  "component": "shadcn/Button",
+                  "variant": "outline",
+                  "icon": "lucide:FileJson"
+                },
+                {
+                  "id": "download_csv",
+                  "label": "CSV",
+                  "component": "shadcn/Button",
+                  "variant": "outline",
+                  "icon": "lucide:FileSpreadsheet"
+                },
+                {
+                  "id": "download_excel",
+                  "label": "Excel",
+                  "component": "shadcn/Button",
+                  "variant": "outline",
+                  "icon": "lucide:FileSpreadsheet"
+                },
+                {
+                  "id": "retry_extraction",
+                  "label": "Retry",
+                  "component": "shadcn/Button",
+                  "icon": "lucide:RotateCcw",
+                  "visibility": {
+                    "roles": ["owner", "member"]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "grid",
+          "id": "document_layout",
+          "columns": 2,
+          "components": [
+            {
+              "type": "card",
+              "id": "document_info",
+              "component": "shadcn/Card",
+              "title": "Document",
+              "fields": [
+                "file_name",
+                "status",
+                "template_used",
+                "uploaded_by",
+                "uploaded_at",
+                "pages"
+              ]
+            },
+            {
+              "type": "card",
+              "id": "extraction_view",
+              "component": "shadcn/Card",
+              "components": [
+                {
+                  "type": "tabs",
+                  "id": "extraction_tabs",
+                  "component": "shadcn/Tabs",
+                  "tabs": [
+                    {
+                      "value": "json",
+                      "label": "JSON"
+                    },
+                    {
+                      "value": "table",
+                      "label": "Table"
+                    },
+                    {
+                      "value": "logs",
+                      "label": "Logs"
+                    }
+                  ]
+                },
+                {
+                  "type": "code_view",
+                  "id": "json_view",
+                  "visible_when_tab": "json",
+                  "component": "shadcn/CodeBlock",
+                  "fields": ["extracted_json"]
+                },
+                {
+                  "type": "table",
+                  "id": "table_view",
+                  "visible_when_tab": "table",
+                  "component": "shadcn/Table",
+                  "columns": ["key", "value"]
+                },
+                {
+                  "type": "log_view",
+                  "id": "logs_view",
+                  "visible_when_tab": "logs",
+                  "component": "shadcn/ScrollArea",
+                  "columns": ["timestamp", "level", "message"]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "element_id": "retry_extraction",
+          "event": "onClick",
+          "action": "POST /api/documents/:documentId/retry; show toast; update document_info.status and refresh extraction_view on completion."
+        },
+        {
+          "element_id": "download_json",
+          "event": "onClick",
+          "action": "GET /api/documents/:documentId/export?format=json; trigger browser download."
+        },
+        {
+          "element_id": "download_csv",
+          "event": "onClick",
+          "action": "GET /api/documents/:documentId/export?format=csv."
+        },
+        {
+          "element_id": "download_excel",
+          "event": "onClick",
+          "action": "GET /api/documents/:documentId/export?format=excel."
+        }
+      ]
+    },
+    {
+      "id": "S_api_keys",
+      "name": "API Key Management",
+      "route": "/app/settings/api-keys",
+      "purpose": "Create, view, and revoke company API keys.",
+      "roles_allowed": ["owner", "member"],
+      "components": [
+        {
+          "type": "page_header",
+          "id": "api_keys_header",
+          "components": [
+            {
+              "type": "typography",
+              "id": "title",
+              "component": "shadcn/TypographyH2",
+              "props": {
+                "children": "API keys"
+              }
+            },
+            {
+              "type": "typography",
+              "id": "subtitle",
+              "component": "shadcn/TypographyP",
+              "props": {
+                "children": "Use API keys to call DocFoundry from your apps and automation tools."
+              }
+            },
+            {
+              "type": "button",
+              "id": "new_api_key_button",
+              "component": "shadcn/Button",
+              "icon": "lucide:KeyRound",
+              "props": {
+                "children": "New API key"
+              }
+            }
+          ]
+        },
+        {
+          "type": "table",
+          "id": "api_keys_table",
+          "component": "shadcn/DataTable",
+          "columns": [
+            "name",
+            "prefix",
+            "created_at",
+            "last_used_at",
+            "status",
+            "scopes",
+            {
+              "key": "actions",
+              "label": "",
+              "component": "shadcn/Button",
+              "variant": "ghost",
+              "icon": "lucide:Trash2",
+              "action": "revoke_key"
+            }
+          ]
+        },
+        {
+          "type": "modal",
+          "id": "create_api_key_modal",
+          "component": "shadcn/Dialog",
+          "title": "Create API key",
+          "description": "Keys are scoped to this company. Store the secret value securely.",
+          "form": {
+            "id": "create_api_key_form",
+            "component": "shadcn/Form",
+            "fields": [
+              {
+                "name": "name",
+                "label": "Name",
+                "component": "shadcn/Input",
+                "placeholder": "e.g. Zapier invoices workflow",
+                "validation": "required"
+              },
+              {
+                "name": "scopes",
+                "label": "Scopes",
+                "component": "shadcn/MultiSelect",
+                "options": [
+                  "documents:write",
+                  "documents:read",
+                  "templates:read",
+                  "webhooks:manage"
+                ]
+              },
+              {
+                "name": "expiration",
+                "label": "Expiration",
+                "component": "shadcn/Select",
+                "options": ["Never", "7 days", "30 days", "90 days"]
+              }
+            ]
+          }
+        },
+        {
+          "type": "modal",
+          "id": "api_key_created_modal",
+          "component": "shadcn/Dialog",
+          "title": "API key created",
+          "description": "Copy this value now. You won’t be able to see it again.",
+          "body_components": [
+            {
+              "type": "code_view",
+              "id": "plaintext_key_display",
+              "component": "shadcn/Input",
+              "props": {
+                "readOnly": true
+              }
+            },
+            {
+              "type": "button",
+              "id": "copy_key_button",
+              "component": "shadcn/Button",
+              "icon": "lucide:Clipboard",
+              "props": {
+                "children": "Copy to clipboard"
+              }
+            }
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "element_id": "new_api_key_button",
+          "event": "onClick",
+          "action": "Open create_api_key_modal."
+        },
+        {
+          "element_id": "create_api_key_form",
+          "event": "onSubmit",
+          "action": "POST /api/api-keys; on success show api_key_created_modal with plaintext_key and refresh api_keys_table."
+        },
+        {
+          "element_id": "api_keys_table",
+          "event": "onAction:revoke_key",
+          "action": "POST /api/api-keys/:apiKeyId/revoke; on success mark status=revoked."
+        },
+        {
+          "element_id": "copy_key_button",
+          "event": "onClick",
+          "action": "Copy plaintext_key to clipboard; show shadcn/Toast."
+        }
+      ]
+    },
+    {
+      "id": "S_webhooks",
+      "name": "Webhook Setup",
+      "route": "/app/settings/webhooks",
+      "purpose": "Configure webhooks to receive extraction results and other events with logs.",
+      "roles_allowed": ["owner", "member"],
+      "components": [
+        {
+          "type": "page_header",
+          "id": "webhooks_header",
+          "components": [
+            {
+              "type": "typography",
+              "id": "title",
+              "component": "shadcn/TypographyH2",
+              "props": {
+                "children": "Webhooks"
+              }
+            },
+            {
+              "type": "typography",
+              "id": "subtitle",
+              "component": "shadcn/TypographyP",
+              "props": {
+                "children": "Get notified when documents finish processing or when key events happen."
+              }
+            }
+          ]
+        },
+        {
+          "type": "grid",
+          "id": "webhooks_layout",
+          "columns": 2,
+          "components": [
+            {
+              "type": "card",
+              "id": "webhook_config_card",
+              "component": "shadcn/Card",
+              "title": "Configuration",
+              "form": {
+                "id": "webhook_config_form",
+                "component": "shadcn/Form",
+                "fields": [
+                  {
+                    "name": "target_url",
+                    "label": "Target URL",
+                    "component": "shadcn/Input",
+                    "placeholder": "https://your-app.com/webhooks/docfoundry",
+                    "validation": "required|url"
+                  },
+                  {
+                    "name": "secret",
+                    "label": "Signing secret",
+                    "component": "shadcn/Input",
+                    "type": "password",
+                    "description": "Used to verify signatures (HMAC)."
+                  },
+                  {
+                    "name": "events",
+                    "label": "Events",
+                    "component": "shadcn/MultiSelect",
+                    "options": [
+                      "document.succeeded",
+                      "document.failed",
+                      "usage.threshold_80",
+                      "usage.threshold_100"
+                    ]
+                  },
+                  {
+                    "name": "retry_policy",
+                    "label": "Retry policy",
+                    "component": "shadcn/Select",
+                    "options": [
+                      "Exponential backoff (recommended)",
+                      "No retries"
+                    ]
+                  },
+                  {
+                    "name": "enabled",
+                    "label": "Enabled",
+                    "component": "shadcn/Switch"
+                  }
+                ],
+                "actions": [
+                  {
+                    "id": "save_webhook",
+                    "label": "Save",
+                    "component": "shadcn/Button",
+                    "icon": "lucide:Save"
+                  },
+                  {
+                    "id": "send_test_event",
+                    "label": "Send test event",
+                    "component": "shadcn/Button",
+                    "variant": "outline",
+                    "icon": "lucide:Send"
+                  }
+                ]
+              }
+            },
+            {
+              "type": "card",
+              "id": "webhook_logs_card",
+              "component": "shadcn/Card",
+              "title": "Recent deliveries",
+              "components": [
+                {
+                  "type": "table",
+                  "id": "webhook_logs_table",
+                  "component": "shadcn/DataTable",
+                  "columns": [
+                    "timestamp",
+                    "event",
+                    "status_code",
+                    "delivery_status",
+                    "error_message",
+                    {
+                      "key": "actions",
+                      "label": "",
+                      "component": "shadcn/Button",
+                      "variant": "ghost",
+                      "icon": "lucide:Eye",
+                      "action": "view_payload"
+                    },
+                    {
+                      "key": "retry",
+                      "label": "",
+                      "component": "shadcn/Button",
+                      "variant": "ghost",
+                      "icon": "lucide:RotateCcw",
+                      "action": "retry_delivery"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "modal",
+          "id": "payload_modal",
+          "component": "shadcn/Dialog",
+          "title": "Webhook payload",
+          "body_components": [
+            {
+              "type": "code_view",
+              "id": "payload_json_view",
+              "component": "shadcn/CodeBlock"
+            }
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "element_id": "webhook_config_form",
+          "event": "onSubmit",
+          "action": "POST /api/webhooks; on success show toast."
+        },
+        {
+          "element_id": "send_test_event",
+          "event": "onClick",
+          "action": "POST /api/webhooks/test with webhook_id; append to webhook_logs_table."
+        },
+        {
+          "element_id": "webhook_logs_table",
+          "event": "onAction:view_payload",
+          "action": "Open payload_modal populated with selected log payload."
+        },
+        {
+          "element_id": "webhook_logs_table",
+          "event": "onAction:retry_delivery",
+          "action": "POST /api/webhooks/:deliveryId/retry; update log row status."
+        }
+      ]
+    },
+    {
+      "id": "S_integrations",
+      "name": "Integrations Guides",
+      "route": "/app/integrations",
+      "purpose": "Provide Zapier, Make, n8n, and REST API integration guides with examples.",
+      "roles_allowed": ["owner", "member", "readonly"],
+      "components": [
+        {
+          "type": "page_header",
+          "id": "integrations_header",
+          "components": [
+            {
+              "type": "typography",
+              "id": "title",
+              "component": "shadcn/TypographyH2",
+              "props": {
+                "children": "Integrations"
+              }
+            },
+            {
+              "type": "typography",
+              "id": "subtitle",
+              "component": "shadcn/TypographyP",
+              "props": {
+                "children": "Connect DocFoundry to Zapier, Make, n8n, or your own apps."
+              }
+            }
+          ]
+        },
+        {
+          "type": "tabs",
+          "id": "integrations_tabs",
+          "component": "shadcn/Tabs",
+          "tabs": [
+            {
+              "value": "zapier",
+              "label": "Zapier"
+            },
+            {
+              "value": "make",
+              "label": "Make"
+            },
+            {
+              "value": "n8n",
+              "label": "n8n"
+            },
+            {
+              "value": "rest_api",
+              "label": "REST API Docs"
+            }
+          ]
+        },
+        {
+          "type": "markdown",
+          "id": "zapier_guide",
+          "visible_when_tab": "zapier",
+          "component": "shadcn/Markdown",
+          "fields": [
+            "step_by_step_instructions",
+            "example_requests",
+            "sample_payloads"
+          ]
+        },
+        {
+          "type": "markdown",
+          "id": "make_guide",
+          "visible_when_tab": "make",
+          "component": "shadcn/Markdown",
+          "fields": ["step_by_step_instructions", "example_scenarios"]
+        },
+        {
+          "type": "markdown",
+          "id": "n8n_guide",
+          "visible_when_tab": "n8n",
+          "component": "shadcn/Markdown",
+          "fields": ["step_by_step_instructions", "node_configuration"]
+        },
+        {
+          "type": "markdown",
+          "id": "api_docs",
+          "visible_when_tab": "rest_api",
+          "component": "shadcn/Markdown",
+          "fields": [
+            "authentication",
+            "endpoints_overview",
+            "sample_code_snippets"
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "element_id": "integrations_tabs",
+          "event": "onChange",
+          "action": "Swap visible markdown component; no API calls needed beyond static docs or MDX content."
+        }
+      ]
+    },
+    {
+      "id": "S_usage_billing",
+      "name": "Usage & Billing",
+      "route": "/app/settings/usage-billing",
+      "purpose": "Allow company owners to monitor usage and manage subscription plans.",
+      "roles_allowed": ["owner"],
+      "components": [
+        {
+          "type": "page_header",
+          "id": "usage_header",
+          "components": [
+            {
+              "type": "typography",
+              "id": "title",
+              "component": "shadcn/TypographyH2",
+              "props": {
+                "children": "Usage & billing"
+              }
+            }
+          ]
+        },
+        {
+          "type": "grid",
+          "id": "usage_layout",
+          "columns": 2,
+          "components": [
+            {
+              "type": "card",
+              "id": "plan_summary",
+              "component": "shadcn/Card",
+              "title": "Plan",
+              "fields": [
+                "current_plan",
+                "monthly_quota",
+                "used_this_period",
+                "overage_fees"
+              ],
+              "actions": [
+                {
+                  "id": "open_billing_portal",
+                  "label": "Manage billing",
+                  "component": "shadcn/Button",
+                  "icon": "lucide:ExternalLink"
+                }
+              ]
+            },
+            {
+              "type": "card",
+              "id": "usage_chart_card",
+              "component": "shadcn/Card",
+              "title": "Usage over time",
+              "components": [
+                {
+                  "type": "chart",
+                  "id": "usage_chart",
+                  "component": "custom/LineChart",
+                  "fields": ["documents_per_day", "pages_per_day"]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "card",
+          "id": "plan_actions_card",
+          "component": "shadcn/Card",
+          "title": "Change plan",
+          "components": [
+            {
+              "type": "button_group",
+              "id": "billing_actions",
+              "buttons": [
+                {
+                  "id": "upgrade_plan",
+                  "label": "Upgrade",
+                  "component": "shadcn/Button",
+                  "icon": "lucide:ArrowUpRight"
+                },
+                {
+                  "id": "downgrade_plan",
+                  "label": "Downgrade",
+                  "component": "shadcn/Button",
+                  "variant": "outline",
+                  "icon": "lucide:ArrowDownRight"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "element_id": "usage_chart",
+          "event": "onMount",
+          "action": "GET /api/usage/summary and history endpoint; render line chart."
+        },
+        {
+          "element_id": "open_billing_portal",
+          "event": "onClick",
+          "action": "GET /api/billing/portal-session; redirect browser to Stripe customer portal URL."
+        },
+        {
+          "element_id": "upgrade_plan",
+          "event": "onClick",
+          "action": "GET /api/billing/checkout?plan=pro; redirect to Stripe Checkout."
+        },
+        {
+          "element_id": "downgrade_plan",
+          "event": "onClick",
+          "action": "GET /api/billing/portal-session preselect lower plan if supported; otherwise route to support instructions."
+        }
+      ]
+    },
+    {
+      "id": "S_workspace_settings",
+      "name": "Company Settings",
+      "route": "/app/settings",
+      "purpose": "Manage company members, branding, and general settings.",
+      "roles_allowed": ["owner", "member", "readonly"],
+      "components": [
+        {
+          "type": "page_header",
+          "id": "workspace_settings_header",
+          "components": [
+            {
+              "type": "typography",
+              "id": "title",
+              "component": "shadcn/TypographyH2",
+              "props": {
+                "children": "Settings"
+              }
+            }
+          ]
+        },
+        {
+          "type": "tabs",
+          "id": "settings_tabs",
+          "component": "shadcn/Tabs",
+          "tabs": [
+            {
+              "value": "workspace",
+              "label": "Company"
+            },
+            {
+              "value": "members",
+              "label": "Members"
+            },
+            {
+              "value": "branding",
+              "label": "Branding",
+              "visible_for_roles": ["owner"]
+            }
+          ]
+        },
+        {
+          "type": "tab_content",
+          "tab": "workspace",
+          "components": [
+            {
+              "type": "card",
+              "id": "workspace_details_card",
+              "component": "shadcn/Card",
+              "title": "Company details",
+              "form": {
+                "id": "workspace_details_form",
+                "component": "shadcn/Form",
+                "fields": [
+                  {
+                    "name": "name",
+                    "label": "Company name",
+                    "component": "shadcn/Input",
+                    "validation": "required"
+                  },
+                  {
+                    "name": "custom_domain",
+                    "label": "Custom domain",
+                    "component": "shadcn/Input",
+                    "placeholder": "Optional"
+                  }
+                ],
+                "actions": [
+                  {
+                    "id": "save_workspace_details",
+                    "label": "Save changes",
+                    "component": "shadcn/Button",
+                    "icon": "lucide:Save",
+                    "visibility": {
+                      "roles": ["owner"]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "type": "tab_content",
+          "tab": "members",
+          "components": [
+            {
+              "type": "card",
+              "id": "members_card",
+              "component": "shadcn/Card",
+              "title": "Company members",
+              "header_actions": [
+                {
+                  "id": "invite_member_button",
+                  "label": "Invite",
+                  "component": "shadcn/Button",
+                  "icon": "lucide:UserPlus",
+                  "visibility": {
+                    "roles": ["owner"]
+                  }
+                }
+              ],
+              "components": [
+                {
+                  "type": "table",
+                  "id": "members_table",
+                  "component": "shadcn/DataTable",
+                  "columns": [
+                    "email",
+                    "role",
+                    "invited_at",
+                    "joined_at",
+                    {
+                      "key": "actions",
+                      "label": "",
+                      "component": "shadcn/DropdownMenu",
+                      "actions": ["change_role", "remove_member"],
+                      "visibility": {
+                        "roles": ["owner"]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "tab_content",
+          "tab": "branding",
+          "components": [
+            {
+              "type": "card",
+              "id": "branding_card",
+              "component": "shadcn/Card",
+              "title": "Branding",
+              "description": "Customize logo and primary color for this company.",
+              "form": {
+                "id": "branding_form",
+                "component": "shadcn/Form",
+                "fields": [
+                  {
+                    "name": "logo_url",
+                    "label": "Logo",
+                    "component": "shadcn/FileUpload",
+                    "accept": "image/*"
+                  },
+                  {
+                    "name": "primary_color",
+                    "label": "Primary color",
+                    "component": "shadcn/Input",
+                    "type": "color"
+                  }
+                ],
+                "actions": [
+                  {
+                    "id": "save_branding",
+                    "label": "Save branding",
+                    "component": "shadcn/Button",
+                    "icon": "lucide:Save"
+                  }
+                ]
+              },
+              "visibility": {
+                "roles": ["owner"]
+              }
+            }
+          ]
+        },
+        {
+          "type": "modal",
+          "id": "invite_member_modal",
+          "component": "shadcn/Dialog",
+          "title": "Invite member",
+          "form": {
+            "id": "invite_member_form",
+            "component": "shadcn/Form",
+            "fields": [
+              {
+                "name": "email",
+                "label": "Email",
+                "component": "shadcn/Input",
+                "validation": "required|email"
+              },
+              {
+                "name": "role",
+                "label": "Role",
+                "component": "shadcn/Select",
+                "options": ["member", "readonly"]
+              }
+            ]
+          }
+        }
+      ],
+      "interactions": [
+        {
+          "element_id": "save_workspace_details",
+          "event": "onClick",
+          "action": "PUT /api/workspaces/:id; show toast on success."
+        },
+        {
+          "element_id": "invite_member_button",
+          "event": "onClick",
+          "action": "Open invite_member_modal."
+        },
+        {
+          "element_id": "invite_member_form",
+          "event": "onSubmit",
+          "action": "POST /api/workspaces/:id/invitations; update members_table."
+        },
+        {
+          "element_id": "members_table",
+          "event": "onAction:change_role",
+          "action": "Open inline role select; PATCH /api/workspaces/:id/members/:memberId."
+        },
+        {
+          "element_id": "members_table",
+          "event": "onAction:remove_member",
+          "action": "Confirm removal, then DELETE /api/workspaces/:id/members/:memberId and refresh."
+        },
+        {
+          "element_id": "save_branding",
+          "event": "onClick",
+          "action": "PUT /api/workspaces/:id/branding; update workspace theme in UI context."
+        }
+      ]
+    },
+    {
+      "id": "S_admin_panel",
+      "name": "Admin Panel",
+      "route": "/admin",
+      "purpose": "Platform-level administration for multi-tenant monitoring and control.",
+      "roles_allowed": ["admin"],
+      "components": [
+        {
+          "type": "layout",
+          "id": "admin_shell",
+          "components": [
+            {
+              "type": "page_header",
+              "id": "admin_header",
+              "components": [
+                {
+                  "type": "typography",
+                  "id": "title",
+                  "component": "shadcn/TypographyH2",
+                  "props": {
+                    "children": "Admin panel"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "grid",
+              "id": "admin_grid",
+              "columns": 2,
+              "components": [
+                {
+                  "type": "card",
+                  "id": "workspaces_table_card",
+                  "component": "shadcn/Card",
+                  "title": "Companies",
+                  "components": [
+                    {
+                      "type": "table",
+                      "id": "workspaces_table",
+                      "component": "shadcn/DataTable",
+                      "columns": [
+                        "workspace_name",
+                        "owner_email",
+                        "plan",
+                        "status",
+                        "created_at",
+                        {
+                          "key": "actions",
+                          "label": "",
+                          "component": "shadcn/DropdownMenu",
+                          "actions": ["impersonate_owner", "suspend_workspace"]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "card",
+                  "id": "system_metrics_card",
+                  "component": "shadcn/Card",
+                  "title": "System metrics",
+                  "components": [
+                    {
+                      "type": "table",
+                      "id": "system_metrics",
+                      "component": "shadcn/Table",
+                      "columns": [
+                        "queue_depth",
+                        "avg_processing_time",
+                        "daily_docs_processed",
+                        "errors_last_24h"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "card",
+              "id": "admin_audit_logs_card",
+              "component": "shadcn/Card",
+              "title": "Admin audit logs",
+              "components": [
+                {
+                  "type": "table",
+                  "id": "admin_audit_logs",
+                  "component": "shadcn/DataTable",
+                  "columns": ["timestamp", "actor", "action", "target"]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "element_id": "workspaces_table",
+          "event": "onAction:impersonate_owner",
+          "action": "POST /api/admin/impersonate/:workspaceId; set admin-impersonation token and redirect to /app as that owner."
+        },
+        {
+          "element_id": "workspaces_table",
+          "event": "onAction:suspend_workspace",
+          "action": "PATCH /api/admin/workspaces/:id {status:'suspended'}; update row status."
+        }
+      ]
+    },
+    {
+      "id": "S_notifications_center",
+      "name": "Notifications Center",
+      "route": "/app/notifications",
+      "purpose": "View in-app notifications such as usage thresholds, webhook failures, and billing issues.",
+      "roles_allowed": ["owner", "member", "readonly", "admin"],
+      "components": [
+        {
+          "type": "page_header",
+          "id": "notifications_header",
+          "components": [
+            {
+              "type": "typography",
+              "id": "title",
+              "component": "shadcn/TypographyH2",
+              "props": {
+                "children": "Notifications"
+              }
+            }
+          ]
+        },
+        {
+          "type": "list",
+          "id": "notifications_list",
+          "component": "shadcn/ScrollArea",
+          "item_template": {
+            "icon": "lucide:Bell",
+            "fields": ["title", "body", "created_at", "status"]
+          }
+        }
+      ],
+      "interactions": [
+        {
+          "element_id": "notifications_list",
+          "event": "onItemClick",
+          "action": "Mark notification as read and navigate to related resource if link exists (e.g., /app/settings/usage-billing for usage_threshold_80)."
+        }
+      ]
+    },
+    {
+      "id": "S_error_404",
+      "name": "Not Found",
+      "route": "/404",
+      "purpose": "Display when a route or resource is not found.",
+      "roles_allowed": ["guest", "owner", "member", "readonly", "admin"],
+      "components": [
+        {
+          "type": "centered_message",
+          "id": "not_found_message",
+          "component": "shadcn/Card",
+          "icon": "lucide:FileQuestion",
+          "title": "Page not found",
+          "body": "The page you’re looking for doesn’t exist or you don’t have access.",
+          "actions": [
+            {
+              "id": "go_home",
+              "label": "Back to dashboard",
+              "component": "shadcn/Button",
+              "href": "/app"
+            }
+          ]
+        }
+      ],
+      "interactions": [
+        {
+          "element_id": "go_home",
+          "event": "onClick",
+          "action": "Navigate to /app if authenticated, otherwise /login."
+        }
+      ]
+    }
+  ]
+}

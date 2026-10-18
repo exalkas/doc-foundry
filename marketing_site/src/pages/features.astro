@@ -1,0 +1,67 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/marketing/Header.astro';
+import Footer from '../components/marketing/Footer.astro';
+import Button from '../components/ui/Button.astro';
+---
+
+<Layout title="Features - DocFoundry.app" description="Everything you need to extract structured data from documents.">
+  <Header />
+  <main>
+    <section class="py-24 sm:py-32 bg-white dark:bg-slate-900">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-3xl text-center">
+          <h1 class="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl dark:text-slate-100">
+            Built for developers and operations teams
+          </h1>
+          <p class="mt-4 text-lg text-slate-600 dark:text-slate-400">
+            Extract structured data from documents using customizable templates, APIs, and automation integrations.
+          </p>
+        </div>
+        <div class="mx-auto mt-16 max-w-4xl">
+          <div class="grid grid-cols-1 gap-12 md:grid-cols-2">
+            <div>
+              <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+                Custom Extraction Templates
+              </h2>
+              <p class="mt-2 text-slate-600 dark:text-slate-400">
+                Define schemas once, map fields visually, and extract consistent JSON, CSV, and Excel via API, webhooks, or automation platforms like Make, Zapier, and n8n.
+              </p>
+            </div>
+            <div>
+              <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+                API & Webhook Access
+              </h2>
+              <p class="mt-2 text-slate-600 dark:text-slate-400">
+                Integrate document parsing into your apps and workflows with REST APIs, webhooks, and support for Zapier, Make, and n8n.
+              </p>
+            </div>
+            <div>
+              <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+                Multi-Tenant Companies
+              </h2>
+              <p class="mt-2 text-slate-600 dark:text-slate-400">
+                Organize documents and templates into project folders with company-based access control and usage metering per subscription.
+              </p>
+            </div>
+            <div>
+              <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+                Observable Processing
+              </h2>
+              <p class="mt-2 text-slate-600 dark:text-slate-400">
+                Track every extraction with logs, status history, and retry logic. Monitor processing volume and costs with detailed usage metrics.
+              </p>
+            </div>
+          </div>
+          <div class="mt-12 text-center">
+            <Button href="/register" variant="primary" class="px-6 py-3 text-base">
+              Start free trial
+            </Button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Layout>
+

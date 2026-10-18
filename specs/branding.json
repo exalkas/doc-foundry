@@ -1,0 +1,108 @@
+{
+  "product_names": [
+    {
+      "name": "DocFoundry.app",
+      "short_tagline": "Forge any document into clean, usable data.",
+      "positioning": "For SaaS teams, ops, and automation builders who need reliable, template-driven document extraction with first-class APIs, webhooks, and workflow integrations."
+    },
+    {
+      "name": "ParseForge",
+      "short_tagline": "Shape messy docs into precise data streams.",
+      "positioning": "For developers and operations leaders who want a robust, API-first platform to transform PDFs, scans, and forms into structured JSON, CSV, and Excel."
+    },
+    {
+      "name": "DocCircuit",
+      "short_tagline": "Wire documents directly into your workflows.",
+      "positioning": "For automation consultants and ops teams who need document data to flow cleanly through Zapier, Make, n8n, and custom pipelines without manual cleanup."
+    },
+    {
+      "name": "StructifyDocs",
+      "short_tagline": "From unstructured files to structured truth.",
+      "positioning": "For finance, logistics, and HR teams that need consistent, validated data from receipts, invoices, and forms, without building their own OCR stack."
+    },
+    {
+      "name": "DatumFlow",
+      "short_tagline": "Let your documents feed your systems.",
+      "positioning": "For SaaS companies and SMEs that want multi-tenant, metered document extraction as a service, complete with audit logs, billing, and team workspaces."
+    },
+    {
+      "name": "DocRelay",
+      "short_tagline": "Capture, extract, and deliver document data.",
+      "positioning": "For product teams and integrators who need a reliable relay from uploads and scans to clean webhooks and exports, with full observability and retries."
+    },
+    {
+      "name": "IngestGrid",
+      "short_tagline": "Gridlock your document chaos into clean data.",
+      "positioning": "For engineering and ops leaders who want to centralize document ingestion, templating, and exports in one scalable, multi-tenant SaaS."
+    }
+  ],
+  "brand_voice": [
+    "Technical but approachable: speak to developers, ops, and finance users with clear, concrete language, avoiding buzzwords and unnecessary jargon.",
+    "Confident and precise: emphasize accuracy, observability, and SLAs using specifics (logs, quotas, retries, metrics) rather than vague promises.",
+    "Action-oriented and instructional: favor step-by-step guidance, code-ready examples, and direct calls to action that help users reach first extraction and integration quickly.",
+    "Calm, trustworthy, and compliance-aware: maintain a steady, professional tone around billing, audit logs, and sensitive documents\u2014no jokes around risk or security.",
+    "API-first and automation-minded: naturally reference APIs, webhooks, Zapier/Make/n8n, and CI/CD workflows, like a senior engineer walking a teammate through implementation."
+  ],
+  "color_palette": {
+    "primary": {
+      "hex": "#2563EB",
+      "usage": "Primary actions (CTAs), main navigation highlights, key status indicators, and links in both the dashboard and marketing site."
+    },
+    "secondary": {
+      "hex": "#0F172A",
+      "usage": "Top navigation background, headers, sidebars, and high-emphasis panels such as admin, security, and billing sections."
+    },
+    "accent": {
+      "hex": "#22C55E",
+      "usage": "Success states, healthy system badges, usage-under-limit charts, confirmation toasts, and subtle UI accents (icons, borders)."
+    },
+    "background": {
+      "hex": "#F9FAFB",
+      "usage": "Primary app background, marketing sections, and the canvas behind cards, tables, and modals to keep the UI light and low-noise."
+    },
+    "text": {
+      "hex": "#111827",
+      "usage": "Default body text, labels, documentation, and any long-form content that needs strong readability on light backgrounds."
+    }
+  },
+  "typography": {
+    "heading_font": "Inter",
+    "body_font": "Inter"
+  },
+  "logo_concepts": [
+    "Wordmark 'DocFoundry.app' in a modern geometric sans-serif, with a minimal icon of a document transforming into a structured grid of squares, using primary blue with a subtle green accent.",
+    "Compact symbol of a stylized anvil or forge combined with a document outline, implying raw documents being forged into data; paired with straightforward, uppercase text for the product name.",
+    "Layered document sheets resolving into rows and columns (table/grid) inside a rounded square icon, suggesting transformation from chaos to structure, with a clean, lowercase logotype.",
+    "A pipeline-style icon: an input document on the left, a segmented pipe, and clean JSON brackets or table cells on the right, indicating end-to-end processing; text set in a calm but technical sans-serif.",
+    "Abstract mark of connected nodes forming a document shape or bracketed frame, hinting at APIs and automation flows, supported by a balanced wordmark that feels enterprise-ready."
+  ],
+  "logo_prompts": [
+    "A modern SaaS logo for a product called 'DocFoundry.app': minimal flat icon of a document transforming into a grid of data cells, clean geometric shapes, primary blue (#2563EB) with green accent (#22C55E), paired with a sleek sans-serif wordmark, white background, professional and enterprise-ready, vector style.",
+    "Logo design of a stylized forge or anvil combined with a document outline, symbolizing raw PDFs being forged into structured data, simple flat illustration, bold shapes, dark navy (#0F172A) and bright blue (#2563EB), with the name 'DocFoundry.app' in a modern uppercase sans-serif, minimal and tech-focused.",
+    "Icon of stacked papers morphing into a structured table inside a rounded square, subtle gradients in blue tones, crisp lines, no drop shadows, accompanied by the word 'DocFoundry.app' in Inter or similar sans-serif, clean B2B SaaS aesthetic.",
+    "Tech logo showing a pipeline: an outlined document entering on the left and exiting as JSON brackets and table cells on the right, linear flow, flat design, blue and green palette, thin strokes, with the product name 'DocFoundry.app' beside it in a neutral, readable font.",
+    "Abstract network-style logo where small connected nodes form the shape of a document with data brackets inside, minimalist, API and automation vibe, blue primary color with subtle green accent, paired with the wordmark 'DocFoundry.app' in a calm, confident sans-serif, on a light background."
+  ],
+  "domain_candidates": [
+    "docfoundry.com",
+    "docfoundry.app",
+    "docfoundry.io",
+    "trydocfoundry.com",
+    "usedocfoundry.com",
+    "docfoundryhq.com",
+    "docfoundrycloud.com",
+    "docfoundrylabs.com",
+    "parseforge.com",
+    "parseforge.io",
+    "doccircuit.com",
+    "structifydocs.com",
+    "datumflow.app",
+    "docrelay.io",
+    "ingestgrid.com",
+    "ingestgrid.io",
+    "docfoundry.dev",
+    "docfoundry.ai",
+    "docfoundry.co",
+    "docfoundry.de"
+  ]
+}

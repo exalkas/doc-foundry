@@ -1,0 +1,1543 @@
+app:
+  name: DocData SaaS
+  description:
+    A multi-tenant SaaS for turning unstructured documents (PDFs, images,
+    receipts, invoices, contracts, shipping docs, CVs, forms, scans) into structured
+    data using customizable extraction templates, with APIs, webhooks, and automation
+    platform integrations.
+  target_users:
+    - SaaS companies needing document data extraction as a service
+    - Operations and logistics teams processing shipping and packing documents
+    - Accounting and finance teams processing receipts and invoices
+    - HR teams processing CVs and standardized forms
+    - Developers integrating document parsing into their apps or workflows
+    - Automation consultants using Zapier, Make, and n8n
+  business_model: SaaS
+  domain: document_processing
+core_features:
+  authentication:
+    type: email_password
+    providers:
+      - google
+    session_type: jwt_cookie
+    extra_security:
+      - email_verification
+      - password_reset
+      - 2fa_optional
+  payments:
+    provider: stripe
+    billing_model: hybrid
+    plans:
+      - id: basic
+        price: "29"
+        interval: monthly
+        features_included:
+          - Up to 1,000 pages per month
+          - 1 team member
+          - Up to 5 extraction templates
+          - Email support
+          - API & webhook access
+      - id: pro
+        price: "99"
+        interval: monthly
+        features_included:
+          - Up to 10,000 pages per month
+          - 5 team members
+          - Unlimited extraction templates
+          - Priority support
+          - API & webhook access
+          - Zapier/Make/n8n integrations
+  roles:
+    - id: admin
+      permissions:
+        - "*"
+    - id: owner
+      permissions:
+        - workspace:*
+        - user:invite
+        - user:remove
+        - billing:*
+        - templates:*
+        - documents:*
+        - exports:*
+        - apikeys:*
+        - webhooks:*
+        - usage:view
+    - id: member
+      permissions:
+        - templates:create
+        - templates:view
+        - templates:update
+        - documents:upload
+        - documents:view
+        - documents:retry
+        - exports:download
+        - apikeys:view
+        - webhooks:view
+    - id: readonly
+      permissions:
+        - templates:view
+        - documents:view
+        - exports:download
+        - usage:view
+  audit_logging:
+    enabled: true
+    events:
+      - login
+      - logout
+      - create
+      - update
+      - delete
+      - billing_update
+      - template_run
+      - api_key_used
+      - webhook_sent
+      - webhook_failed
+      - file_uploaded
+      - extraction_retried
+      - plan_changed
+  notifications:
+    channels:
+      - email
+      - in_app
+    events:
+      - welcome_new_user
+      - email_verification
+      - password_reset
+      - subscription_created
+      - subscription_canceled
+      - payment_failed
+      - usage_threshold_80
+      - usage_threshold_100
+      - webhook_failures_exceeded
+      - api_key_expiring
+      - api_key_rotated
+  file_uploads:
+    storage_provider: local
+    max_file_size_mb: 25
+  custom_features:
+    - Multi-tenant workspaces with usage metering per subscription
+    - Custom extraction template editor for mapping document fields to JSON keys
+    - Document processing job queue with retry logic
+    - Extraction preview UI with JSON/CSV/Excel export
+    - API key management and REST API for programmatic extraction
+    - Webhook configuration with delivery logs and signature verification
+    - Integration guides and snippets for Zapier, Make, and n8n
+    - Brandable UI (logo, primary color, app name) per workspace
+    - Project folders for organizing documents and templates
+    - Extraction logs and status history
+roles:
+  - id: admin
+    description: Platform administrator with full access across all workspaces
+    permissions:
+      - admin:*
+      - user:impersonate
+      - billing:view_all
+      - system:settings
+      - system:monitoring
+      - system:audit_logs
+  - id: owner
+    description: Workspace owner with full access within their workspace including billing
+    permissions:
+      - workspace:*
+      - user:invite
+      - user:remove
+      - user:role:update
+      - billing:*
+      - templates:*
+      - documents:*
+      - exports:*
+      - apikeys:*
+      - webhooks:*
+      - usage:view
+      - branding:update
+  - id: member
+    description: Standard workspace member who can manage documents and templates
+    permissions:
+      - templates:create
+      - templates:view
+      - templates:update
+      - templates:run
+      - documents:upload
+      - documents:view
+      - documents:retry
+      - exports:download
+      - apikeys:view
+      - webhooks:view
+      - projects:manage
+  - id: readonly
+    description: Read-only user who can review extractions and exports
+    permissions:
+      - templates:view
+      - documents:view
+      - exports:download
+      - usage:view
+personas:
+  - id: ops_manager
+    name: Operations Manager Olivia
+    goals:
+      - Automate data entry from shipping and packing documents
+      - Reduce manual errors and processing time
+      - Monitor processing volume and costs
+    pain_points:
+      - Manual data entry is slow and error-prone
+      - Hard to standardize fields across different document types
+    permissions_role: owner
+  - id: developer
+    name: Developer Dan
+    goals:
+      - "Embed document parsing into their company\u2019s app"
+      - Integrate via API, webhooks, and automation tools
+      - Manage API keys and monitor usage programmatically
+    pain_points:
+      - Existing OCR APIs are low-level and require heavy post-processing
+      - Complex authentication and lack of clear documentation
+    permissions_role: member
+  - id: accountant
+    name: Accountant Alice
+    goals:
+      - Process invoices and receipts into accounting system
+      - Export structured data as CSV/Excel
+    pain_points:
+      - Receipts and invoices come in many formats
+      - Need consistent fields for bookkeeping
+    permissions_role: member
+  - id: automation_consultant
+    name: Automation Consultant Amir
+    goals:
+      - Build workflows in Zapier/Make/n8n involving document parsing
+      - Quickly test templates and exports
+    pain_points:
+      - Difficult to get reliable structured data from documents
+    permissions_role: owner
+user_journeys:
+  - id: signup_and_first_extraction
+    title: New user signs up and runs first extraction
+    steps:
+      - User lands on marketing site and clicks 'Start Free Trial'.
+      - User signs up with email/password or Google, verifies email.
+      - User creates a workspace and is taken to onboarding in the dashboard.
+      - User creates their first project folder, e.g. 'Invoices'.
+      - User uploads a sample invoice PDF.
+      - User creates a new extraction template and defines key fields (e.g. vendor_name,
+        invoice_number, total_amount).
+      - User maps template fields to JSON keys and runs test extraction.
+      - Extraction completes via background job; user sees JSON preview and sample CSV/Excel
+        export.
+      - User saves template and configures an API key for programmatic use.
+  - id: api_integration_with_webhook
+    title: Developer integrates API and webhooks
+    steps:
+      - Developer logs into dashboard and goes to API Keys screen.
+      - Developer creates a new API key with a descriptive name and restricted scopes.
+      - Developer reads API docs / integration guide page.
+      - Developer configures a webhook endpoint in Webhook Setup with secret for signature
+        verification.
+      - Developer sends test document via REST API using an extraction template ID.
+      - System processes document via job queue and posts result to webhook URL.
+      - Developer validates signature and parses received JSON into their system.
+  - id: usage_monitoring_and_billing
+    title: Owner monitors usage and updates subscription
+    steps:
+      - Owner visits Usage & Billing page in the dashboard.
+      - "Owner views current month\u2019s document/page usage and historical charts."
+      - Owner sees they are approaching plan limits and upgrade recommendation.
+      - Owner upgrades from Basic to Pro plan through Stripe-hosted checkout or billing
+        portal.
+      - System updates plan, increases quotas, and shows confirmation.
+  - id: integration_with_zapier_make_n8n
+    title: Automation consultant sets up Zapier/Make/n8n workflow
+    steps:
+      - User visits Integrations screen and selects Zapier, Make, or n8n guide.
+      - User follows step-by-step instructions to configure triggers/actions using webhooks
+        or API calls.
+      - User uses provided examples and payloads to map fields in their automation tool.
+      - Workflow is activated and sends documents or receives extracted data as part of
+        multi-step flows.
+screens:
+  - id: S_auth_login
+    name: Login
+    route: /login
+    purpose: Authenticate user
+    roles_allowed:
+      - guest
+    components:
+      - type: form
+        id: login_form
+        fields:
+          - email
+          - password
+        actions:
+          - submit
+          - forgot_password
+          - login_with_google
+  - id: S_auth_register
+    name: Register
+    route: /register
+    purpose: User registration and workspace creation
+    roles_allowed:
+      - guest
+    components:
+      - type: form
+        id: register_form
+        fields:
+          - full_name
+          - email
+          - password
+          - workspace_name
+        actions:
+          - submit
+          - login_instead
+  - id: S_dashboard_main
+    name: User Dashboard
+    route: /app
+    purpose: Overview of projects, recent activity, usage, and quick actions
+    roles_allowed:
+      - owner
+      - member
+      - readonly
+    components:
+      - type: header
+        id: main_header
+        fields:
+          - workspace_switcher
+          - branding_logo
+          - user_menu
+      - type: widget
+        id: usage_summary
+        fields:
+          - current_plan
+          - documents_processed_this_month
+          - pages_processed_this_month
+          - plan_limit_indicator
+      - type: list
+        id: recent_projects
+        fields:
+          - project_name
+          - document_count
+          - last_updated
+      - type: list
+        id: latest_extractions
+        fields:
+          - document_name
+          - status
+          - template_used
+          - processed_at
+      - type: button_group
+        id: quick_actions
+        actions:
+          - upload_document
+          - create_template
+          - view_api_keys
+  - id: S_projects_list
+    name: Project Folders
+    route: /app/projects
+    purpose: Organize documents and templates into folders
+    roles_allowed:
+      - owner
+      - member
+      - readonly
+    components:
+      - type: list
+        id: projects_table
+        fields:
+          - name
+          - description
+          - document_count
+          - template_count
+          - created_at
+        actions:
+          - open_project
+          - rename
+          - delete_project
+      - type: button
+        id: create_project_button
+        actions:
+          - create_project
+  - id: S_project_detail
+    name: Project Detail
+    route: /app/projects/:projectId
+    purpose: View documents and templates in a specific project
+    roles_allowed:
+      - owner
+      - member
+      - readonly
+    components:
+      - type: tabs
+        id: project_tabs
+        fields:
+          - Documents
+          - Templates
+      - type: table
+        id: documents_table
+        fields:
+          - file_name
+          - status
+          - template
+          - uploaded_by
+          - uploaded_at
+          - pages
+        actions:
+          - upload_document
+          - view_extraction
+          - retry_extraction
+      - type: table
+        id: templates_table
+        fields:
+          - name
+          - document_type
+          - last_run
+          - success_rate
+        actions:
+          - create_template
+          - edit_template
+          - duplicate_template
+          - delete_template
+  - id: S_document_upload
+    name: Document Upload Form
+    route: /app/upload
+    purpose: Upload one or more documents to be processed
+    roles_allowed:
+      - owner
+      - member
+    components:
+      - type: form
+        id: upload_form
+        fields:
+          - project_selector
+          - template_selector
+          - files
+          - priority_flag
+        actions:
+          - upload_and_process
+          - cancel
+  - id: S_template_editor
+    name: Template Editor
+    route: /app/templates/:templateId/edit
+    purpose: Create and edit extraction templates and field mappings
+    roles_allowed:
+      - owner
+      - member
+    components:
+      - type: form
+        id: template_settings
+        fields:
+          - template_name
+          - description
+          - document_type
+          - default_export_format
+          - test_document_selector
+      - type: panel
+        id: field_definitions
+        fields:
+          - field_name
+          - json_key
+          - data_type
+          - required
+          - default_value
+          - validation_rules
+      - type: button_group
+        id: template_actions
+        actions:
+          - save_template
+          - run_test_extraction
+          - delete_template
+      - type: preview
+        id: template_json_preview
+        fields:
+          - sample_output_json
+  - id: S_extraction_preview
+    name: Extraction Preview
+    route: /app/documents/:documentId
+    purpose: View extraction results, logs, and exports
+    roles_allowed:
+      - owner
+      - member
+      - readonly
+    components:
+      - type: panel
+        id: document_info
+        fields:
+          - file_name
+          - status
+          - template_used
+          - uploaded_by
+          - uploaded_at
+          - pages
+      - type: tabs
+        id: extraction_tabs
+        fields:
+          - JSON
+          - Table
+          - Logs
+      - type: code_view
+        id: json_view
+        fields:
+          - extracted_json
+      - type: table
+        id: table_view
+        fields:
+          - key
+          - value
+      - type: log_view
+        id: logs_view
+        fields:
+          - timestamp
+          - level
+          - message
+      - type: button_group
+        id: export_buttons
+        actions:
+          - download_json
+          - download_csv
+          - download_excel
+          - retry_extraction
+  - id: S_api_keys
+    name: API Key Management
+    route: /app/settings/api-keys
+    purpose: Create, view, and revoke API keys
+    roles_allowed:
+      - owner
+      - member
+    components:
+      - type: table
+        id: api_keys_table
+        fields:
+          - name
+          - prefix
+          - created_at
+          - last_used_at
+          - status
+          - scopes
+        actions:
+          - revoke_key
+      - type: form
+        id: create_api_key_form
+        fields:
+          - name
+          - scopes
+          - expiration
+        actions:
+          - create_api_key
+  - id: S_webhooks
+    name: Webhook Setup
+    route: /app/settings/webhooks
+    purpose: Configure webhooks to receive extraction results
+    roles_allowed:
+      - owner
+      - member
+    components:
+      - type: form
+        id: webhook_config_form
+        fields:
+          - target_url
+          - secret
+          - events
+          - retry_policy
+          - enabled
+        actions:
+          - save_webhook
+          - send_test_event
+      - type: table
+        id: webhook_logs_table
+        fields:
+          - timestamp
+          - event
+          - status_code
+          - delivery_status
+          - error_message
+        actions:
+          - view_payload
+          - retry_delivery
+  - id: S_integrations
+    name: Integrations Guides
+    route: /app/integrations
+    purpose: Provide guides and configuration help for Make, Zapier, and n8n
+    roles_allowed:
+      - owner
+      - member
+      - readonly
+    components:
+      - type: tabs
+        id: integrations_tabs
+        fields:
+          - Zapier
+          - Make
+          - n8n
+          - REST API Docs
+      - type: markdown
+        id: zapier_guide
+        fields:
+          - step_by_step_instructions
+          - example_requests
+          - sample_payloads
+      - type: markdown
+        id: make_guide
+        fields:
+          - step_by_step_instructions
+          - example_scenarios
+      - type: markdown
+        id: n8n_guide
+        fields:
+          - step_by_step_instructions
+          - node_configuration
+      - type: markdown
+        id: api_docs
+        fields:
+          - authentication
+          - endpoints_overview
+          - sample_code_snippets
+  - id: S_usage_billing
+    name: Usage & Billing
+    route: /app/settings/usage-billing
+    purpose: View usage metering and manage subscription plans
+    roles_allowed:
+      - owner
+    components:
+      - type: chart
+        id: usage_chart
+        fields:
+          - documents_per_day
+          - pages_per_day
+      - type: summary
+        id: plan_summary
+        fields:
+          - current_plan
+          - monthly_quota
+          - used_this_period
+          - overage_fees
+      - type: button_group
+        id: billing_actions
+        actions:
+          - open_billing_portal
+          - upgrade_plan
+          - downgrade_plan
+  - id: S_admin_panel
+    name: Admin Panel
+    route: /admin
+    purpose: Platform admin control panel
+    roles_allowed:
+      - admin
+    components:
+      - type: table
+        id: workspaces_table
+        fields:
+          - workspace_name
+          - owner_email
+          - plan
+          - status
+          - created_at
+        actions:
+          - impersonate_owner
+          - suspend_workspace
+      - type: table
+        id: system_metrics
+        fields:
+          - queue_depth
+          - avg_processing_time
+          - daily_docs_processed
+          - errors_last_24h
+      - type: table
+        id: admin_audit_logs
+        fields:
+          - timestamp
+          - actor
+          - action
+          - target
+entities:
+  - name: User
+    fields:
+      - name: id
+        type: uuid
+        required: true
+      - name: email
+        type: string
+        required: true
+        unique: true
+      - name: password_hash
+        type: string
+        required: true
+      - name: full_name
+        type: string
+        required: false
+      - name: role
+        type: enum
+        values:
+          - admin
+          - owner
+          - member
+          - readonly
+        required: true
+      - name: workspace_id
+        type: uuid
+        required: false
+      - name: is_email_verified
+        type: boolean
+        required: true
+      - name: created_at
+        type: datetime
+        required: true
+      - name: updated_at
+        type: datetime
+        required: true
+      - name: last_login_at
+        type: datetime
+        required: false
+      - name: auth_provider
+        type: enum
+        values:
+          - local
+          - google
+        required: true
+  - name: Workspace
+    fields:
+      - name: id
+        type: uuid
+        required: true
+      - name: name
+        type: string
+        required: true
+      - name: owner_user_id
+        type: uuid
+        required: true
+      - name: stripe_customer_id
+        type: string
+        required: false
+      - name: created_at
+        type: datetime
+        required: true
+      - name: updated_at
+        type: datetime
+        required: true
+      - name: status
+        type: enum
+        values:
+          - active
+          - suspended
+          - trial
+          - canceled
+        required: true
+      - name: trial_ends_at
+        type: datetime
+        required: false
+      - name: primary_color
+        type: string
+        required: false
+      - name: logo_url
+        type: string
+        required: false
+      - name: custom_domain
+        type: string
+        required: false
+  - name: WorkspaceMember
+    fields:
+      - name: id
+        type: uuid
+        required: true
+      - name: workspace_id
+        type: uuid
+        required: true
+      - name: user_id
+        type: uuid
+        required: true
+      - name: role
+        type: enum
+        values:
+          - owner
+          - member
+          - readonly
+        required: true
+      - name: invited_at
+        type: datetime
+        required: true
+      - name: joined_at
+        type: datetime
+        required: false
+  - name: Subscription
+    fields:
+      - name: id
+        type: uuid
+        required: true
+      - name: workspace_id
+        type: uuid
+        required: true
+      - name: stripe_subscription_id
+        type: string
+        required: true
+      - name: plan_id
+        type: string
+        required: true
+      - name: status
+        type: enum
+        values:
+          - active
+          - past_due
+          - canceled
+          - trialing
+        required: true
+      - name: current_period_start
+        type: datetime
+        required: true
+      - name: current_period_end
+        type: datetime
+        required: true
+      - name: cancel_at_period_end
+        type: boolean
+        required: true
+      - name: created_at
+        type: datetime
+        required: true
+      - name: updated_at
+        type: datetime
+        required: true
+  - name: UsageRecord
+    fields:
+      - name: id
+        type: uuid
+        required: true
+      - name: workspace_id
+        type: uuid
+        required: true
+      - name: date
+        type: date
+        required: true
+      - name: documents_processed
+        type: int
+        required: true
+      - name: pages_processed
+        type: int
+        required: true
+      - name: created_at
+        type: datetime
+        required: true
+  - name: Project
+    fields:
+      - name: id
+        type: uuid
+        required: true
+      - name: workspace_id
+        type: uuid
+        required: true
+      - name: name
+        type: string
+        required: true
+      - name: description
+        type: string
+        required: false
+      - name: created_by_user_id
+        type: uuid
+        required: true
+      - name: created_at
+        type: datetime
+        required: true
+      - name: updated_at
+        type: datetime
+        required: true
+  - name: Template
+    fields:
+      - name: id
+        type: uuid
+        required: true
+      - name: workspace_id
+        type: uuid
+        required: true
+      - name: project_id
+        type: uuid
+        required: false
+      - name: name
+        type: string
+        required: true
+      - name: description
+        type: string
+        required: false
+      - name: document_type
+        type: string
+        required: false
+      - name: field_schema
+        type: json
+        required: true
+      - name: default_export_format
+        type: enum
+        values:
+          - json
+          - csv
+          - excel
+        required: true
+      - name: created_by_user_id
+        type: uuid
+        required: true
+      - name: last_run_at
+        type: datetime
+        required: false
+      - name: success_count
+        type: int
+        required: true
+      - name: failure_count
+        type: int
+        required: true
+      - name: created_at
+        type: datetime
+        required: true
+      - name: updated_at
+        type: datetime
+        required: true
+  - name: Document
+    fields:
+      - name: id
+        type: uuid
+        required: true
+      - name: workspace_id
+        type: uuid
+        required: true
+      - name: project_id
+        type: uuid
+        required: false
+      - name: template_id
+        type: uuid
+        required: false
+      - name: file_name
+        type: string
+        required: true
+      - name: file_type
+        type: string
+        required: true
+      - name: storage_path
+        type: string
+        required: true
+      - name: pages
+        type: int
+        required: false
+      - name: status
+        type: enum
+        values:
+          - pending
+          - processing
+          - succeeded
+          - failed
+        required: true
+      - name: uploaded_by_user_id
+        type: uuid
+        required: true
+      - name: source
+        type: enum
+        values:
+          - ui
+          - api
+        required: true
+      - name: created_at
+        type: datetime
+        required: true
+      - name: updated_at
+        type: datetime
+        required: true
+      - name: last_error
+        type: string
+        required: false
+  - name: ExtractionResult
+    fields:
+      - name: id
+        type: uuid
+        required: true
+      - name: document_id
+        type: uuid
+        required: true
+      - name: template_id
+        type: uuid
+        required: true
+      - name: workspace_id
+        type: uuid
+        required: true
+      - name: extracted_json
+        type: json
+        required: true
+      - name: version
+        type: int
+        required: true
+      - name: created_at
+        type: datetime
+        required: true
+  - name: ExtractionLog
+    fields:
+      - name: id
+        type: uuid
+        required: true
+      - name: document_id
+        type: uuid
+        required: true
+      - name: level
+        type: enum
+        values:
+          - info
+          - warning
+          - error
+        required: true
+      - name: message
+        type: string
+        required: true
+      - name: metadata
+        type: json
+        required: false
+      - name: created_at
+        type: datetime
+        required: true
+  - name: Job
+    fields:
+      - name: id
+        type: uuid
+        required: true
+      - name: type
+        type: enum
+        values:
+          - document_extraction
+          - webhook_delivery
+        required: true
+      - name: payload
+        type: json
+        required: true
+      - name: status
+        type: enum
+        values:
+          - queued
+          - processing
+          - succeeded
+          - failed
+        required: true
+      - name: attempts
+        type: int
+        required: true
+      - name: max_attempts
+        type: int
+        required: true
+      - name: last_error
+        type: string
+        required: false
+      - name: scheduled_at
+        type: datetime
+        required: true
+      - name: created_at
+        type: datetime
+        required: true
+      - name: updated_at
+        type: datetime
+        required: true
+  - name: ApiKey
+    fields:
+      - name: id
+        type: uuid
+        required: true
+      - name: workspace_id
+        type: uuid
+        required: true
+      - name: name
+        type: string
+        required: true
+      - name: key_hash
+        type: string
+        required: true
+      - name: prefix
+        type: string
+        required: true
+      - name: scopes
+        type: json
+        required: true
+      - name: status
+        type: enum
+        values:
+          - active
+          - revoked
+        required: true
+      - name: expires_at
+        type: datetime
+        required: false
+      - name: last_used_at
+        type: datetime
+        required: false
+      - name: created_at
+        type: datetime
+        required: true
+  - name: WebhookConfig
+    fields:
+      - name: id
+        type: uuid
+        required: true
+      - name: workspace_id
+        type: uuid
+        required: true
+      - name: target_url
+        type: string
+        required: true
+      - name: secret
+        type: string
+        required: true
+      - name: events
+        type: json
+        required: true
+      - name: retry_policy
+        type: json
+        required: true
+      - name: enabled
+        type: boolean
+        required: true
+      - name: created_at
+        type: datetime
+        required: true
+      - name: updated_at
+        type: datetime
+        required: true
+  - name: WebhookDelivery
+    fields:
+      - name: id
+        type: uuid
+        required: true
+      - name: webhook_config_id
+        type: uuid
+        required: true
+      - name: workspace_id
+        type: uuid
+        required: true
+      - name: event_type
+        type: string
+        required: true
+      - name: payload
+        type: json
+        required: true
+      - name: status_code
+        type: int
+        required: false
+      - name: delivery_status
+        type: enum
+        values:
+          - pending
+          - succeeded
+          - failed
+        required: true
+      - name: attempt_count
+        type: int
+        required: true
+      - name: last_error
+        type: string
+        required: false
+      - name: created_at
+        type: datetime
+        required: true
+      - name: updated_at
+        type: datetime
+        required: true
+  - name: AuditLog
+    fields:
+      - name: id
+        type: uuid
+        required: true
+      - name: workspace_id
+        type: uuid
+        required: false
+      - name: user_id
+        type: uuid
+        required: false
+      - name: actor_type
+        type: enum
+        values:
+          - user
+          - system
+        required: true
+      - name: event_type
+        type: string
+        required: true
+      - name: description
+        type: string
+        required: true
+      - name: metadata
+        type: json
+        required: false
+      - name: created_at
+        type: datetime
+        required: true
+relationships:
+  - from: User
+    to: Workspace
+    type: many_to_many
+    via: WorkspaceMember
+  - from: Workspace
+    to: Subscription
+    type: one_to_many
+  - from: Workspace
+    to: Project
+    type: one_to_many
+  - from: Workspace
+    to: Template
+    type: one_to_many
+  - from: Workspace
+    to: Document
+    type: one_to_many
+  - from: Workspace
+    to: ApiKey
+    type: one_to_many
+  - from: Workspace
+    to: WebhookConfig
+    type: one_to_many
+  - from: Project
+    to: Document
+    type: one_to_many
+  - from: Project
+    to: Template
+    type: one_to_many
+  - from: Template
+    to: Document
+    type: one_to_many
+  - from: Document
+    to: ExtractionResult
+    type: one_to_many
+  - from: Document
+    to: ExtractionLog
+    type: one_to_many
+  - from: WebhookConfig
+    to: WebhookDelivery
+    type: one_to_many
+api:
+  base_url: /api
+  endpoints:
+    - id: E_auth_login
+      path: /auth/login
+      method: POST
+      request:
+        body:
+          - email
+          - password
+      response:
+        success: true
+        fields:
+          - token
+          - user
+      auth_required: false
+    - id: E_auth_register
+      path: /auth/register
+      method: POST
+      request:
+        body:
+          - full_name
+          - email
+          - password
+          - workspace_name
+      response:
+        success: true
+        fields:
+          - token
+          - user
+          - workspace
+      auth_required: false
+    - id: E_me
+      path: /auth/me
+      method: GET
+      request:
+        body: []
+      response:
+        success: true
+        fields:
+          - user
+          - workspaces
+          - current_workspace
+      auth_required: true
+    - id: E_projects_list
+      path: /projects
+      method: GET
+      request:
+        body: []
+      response:
+        success: true
+        fields:
+          - projects
+      auth_required: true
+    - id: E_projects_create
+      path: /projects
+      method: POST
+      request:
+        body:
+          - name
+          - description
+      response:
+        success: true
+        fields:
+          - project
+      auth_required: true
+    - id: E_templates_list
+      path: /templates
+      method: GET
+      request:
+        body: []
+      response:
+        success: true
+        fields:
+          - templates
+      auth_required: true
+    - id: E_templates_create
+      path: /templates
+      method: POST
+      request:
+        body:
+          - name
+          - description
+          - document_type
+          - field_schema
+          - default_export_format
+          - project_id
+      response:
+        success: true
+        fields:
+          - template
+      auth_required: true
+    - id: E_templates_update
+      path: /templates/:templateId
+      method: PUT
+      request:
+        body:
+          - name
+          - description
+          - document_type
+          - field_schema
+          - default_export_format
+      response:
+        success: true
+        fields:
+          - template
+      auth_required: true
+    - id: E_documents_upload
+      path: /documents
+      method: POST
+      request:
+        body:
+          - project_id
+          - template_id
+          - file
+      response:
+        success: true
+        fields:
+          - document
+          - job_id
+      auth_required: true
+    - id: E_documents_get
+      path: /documents/:documentId
+      method: GET
+      request:
+        body: []
+      response:
+        success: true
+        fields:
+          - document
+          - extraction_result
+          - logs
+      auth_required: true
+    - id: E_documents_retry
+      path: /documents/:documentId/retry
+      method: POST
+      request:
+        body: []
+      response:
+        success: true
+        fields:
+          - document
+          - job_id
+      auth_required: true
+    - id: E_extractions_export
+      path: /documents/:documentId/export
+      method: GET
+      request:
+        body: []
+      response:
+        success: true
+        fields:
+          - download_url
+      auth_required: true
+    - id: E_api_keys_list
+      path: /api-keys
+      method: GET
+      request:
+        body: []
+      response:
+        success: true
+        fields:
+          - api_keys
+      auth_required: true
+    - id: E_api_keys_create
+      path: /api-keys
+      method: POST
+      request:
+        body:
+          - name
+          - scopes
+          - expires_at
+      response:
+        success: true
+        fields:
+          - api_key
+          - plaintext_key
+      auth_required: true
+    - id: E_api_keys_revoke
+      path: /api-keys/:apiKeyId/revoke
+      method: POST
+      request:
+        body: []
+      response:
+        success: true
+        fields:
+          - api_key
+      auth_required: true
+    - id: E_webhooks_get
+      path: /webhooks
+      method: GET
+      request:
+        body: []
+      response:
+        success: true
+        fields:
+          - webhooks
+      auth_required: true
+    - id: E_webhooks_upsert
+      path: /webhooks
+      method: POST
+      request:
+        body:
+          - target_url
+          - secret
+          - events
+          - retry_policy
+          - enabled
+      response:
+        success: true
+        fields:
+          - webhook
+      auth_required: true
+    - id: E_webhooks_test
+      path: /webhooks/test
+      method: POST
+      request:
+        body:
+          - webhook_id
+      response:
+        success: true
+        fields:
+          - delivery
+      auth_required: true
+    - id: E_usage_summary
+      path: /usage/summary
+      method: GET
+      request:
+        body: []
+      response:
+        success: true
+        fields:
+          - current_period
+          - documents_processed
+          - pages_processed
+          - plan_limits
+      auth_required: true
+    - id: E_public_extract_via_api_key
+      path: /v1/documents:extract
+      method: POST
+      request:
+        body:
+          - template_id
+          - file
+          - callback_url
+      response:
+        success: true
+        fields:
+          - document_id
+          - status
+      auth_required: true
+integrations:
+  email_provider: resend
+  payment_provider: stripe
+  external_apis:
+    - name: Zapier
+      purpose: Provide workflow automations triggered by webhooks or polling endpoints
+      auth_type: api_key_webhook
+    - name: Make
+      purpose: Scenario-based workflow automations via webhooks and HTTP modules
+      auth_type: api_key_webhook
+    - name: n8n
+      purpose: Self-hosted workflow automations using HTTP Request and Webhook nodes
+      auth_type: api_key_webhook
+non_functional:
+  performance:
+    ttfb_ms: 300
+    max_page_load_s: 2000
+  availability: 99.9%
+  scalability: multi-tenant ready
+  logging: true
+  monitoring: true
+  seo: true
+out_of_scope:
+  - Building custom official Zapier, Make, or n8n marketplace apps (initially documented
+    as generic webhook/API flows only)
+  - On-premise deployment for customers
+  - Advanced AI model training UI beyond template-based extraction configuration
+  - Role-based access control finer than the defined roles
+  - Native mobile applications (web app only)
+open_questions: []
+tech_stack:
+  infrastructure:
+    deployment_type: serverless
+    storage_provider: local
+    database: postgres
+    reverse_proxy: nginx
+  frontend:
+    framework: nextjs
+    css_framework: tailwind
+    ui_library: shadcn
+    icon_library: lucide
+    typescript: true
+    app_router: true
+  backend:
+    framework: fastapi
+    orm: sqlalchemy
+    database: postgres
+    language: python
+  deployment:
+    containerization: docker
+    orchestration: docker_compose
+    web_server: nginx
+    process_manager: none
+branding:
+  product_name: DocFoundry.app
+  tagline: Forge any document into clean, usable data.
+  brand_voice:
+    - "Technical but approachable: speak clearly to developers and ops leaders without
+      jargon for its own sake; explain complex ideas in simple, concrete language."
+    - "Confident and precise: emphasize reliability, accuracy, and observability; avoid
+      hype and vague claims, back benefits with specifics (logs, quotas, metrics)."
+    - "Action-oriented and instructional: favor step-by-step phrasing, code-friendly
+      examples, and direct calls to action that help users integrate quickly."
+    - "Calm, trustworthy, and enterprise-ready: adopt a steady, responsible tone around\
+      \ security, audit logging, and billing\u2014no jokes around compliance-critical\
+      \ workflows."
+    - "API-first and automation-minded: naturally reference webhooks, Zapier/Make/n8n,
+      and REST APIs; write like a helpful senior engineer guiding implementation."
+  color_palette:
+    primary:
+      hex: "#2563EB"
+      usage:
+        Primary actions (CTA buttons, key links, active navigation states) and
+        highlight elements in charts or status badges.
+    secondary:
+      hex: "#0F172A"
+      usage:
+        Headers, navigation bar background, and panels that need a strong, professional
+        feel (e.g., admin and billing sections).
+    accent:
+      hex: "#22C55E"
+      usage:
+        Success states, processed/healthy indicators, usage under-limit visuals,
+        and subtle accent lines or icons in the UI.
+    background:
+      hex: "#F9FAFB"
+      usage:
+        App-wide background, marketing site sections, and neutral areas behind
+        cards and tables to reduce visual noise.
+    text:
+      hex: "#111827"
+      usage:
+        Primary body text, labels, and high-contrast text on light backgrounds
+        for optimal readability in dashboards and docs.
+  typography:
+    heading_font: Inter
+    body_font: Inter

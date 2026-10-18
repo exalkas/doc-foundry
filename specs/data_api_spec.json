@@ -1,0 +1,1530 @@
+{
+  "entities": [
+    {
+      "name": "User",
+      "fields": [
+        { "name": "id", "type": "uuid", "required": true, "primary_key": true },
+        { "name": "email", "type": "string", "required": true, "unique": true, "max_length": 255 },
+        { "name": "password_hash", "type": "string", "required": true },
+        {
+          "name": "global_role",
+          "type": "enum",
+          "required": true,
+          "values": ["admin", "user"],
+          "default": "user",
+          "description": "Platform-wide role; workspace-specific role lives on WorkspaceMember"
+        },
+        { "name": "full_name", "type": "string", "required": false, "max_length": 255 },
+        { "name": "is_email_verified", "type": "boolean", "required": true, "default": false },
+        {
+          "name": "auth_provider",
+          "type": "enum",
+          "required": true,
+          "values": ["local", "google"],
+          "default": "local"
+        },
+        { "name": "last_login_at", "type": "datetime", "required": false },
+        { "name": "created_at", "type": "datetime", "required": true, "default": "now" },
+        { "name": "updated_at", "type": "datetime", "required": true, "default": "now" }
+      ]
+    },
+    {
+      "name": "Workspace",
+      "fields": [
+        { "name": "id", "type": "uuid", "required": true, "primary_key": true },
+        { "name": "name", "type": "string", "required": true, "max_length": 255 },
+        {
+          "name": "owner_user_id",
+          "type": "uuid",
+          "required": true,
+          "foreign_key": "User.id"
+        },
+        { "name": "stripe_customer_id", "type": "string", "required": false, "max_length": 255 },
+        {
+          "name": "status",
+          "type": "enum",
+          "required": true,
+          "values": ["active", "suspended", "trial", "canceled"],
+          "default": "trial"
+        },
+        { "name": "trial_ends_at", "type": "datetime", "required": false },
+        { "name": "primary_color", "type": "string", "required": false, "max_length": 32 },
+        { "name": "logo_url", "type": "string", "required": false },
+        { "name": "custom_domain", "type": "string", "required": false, "unique": true },
+        { "name": "created_at", "type": "datetime", "required": true, "default": "now" },
+        { "name": "updated_at", "type": "datetime", "required": true, "default": "now" }
+      ]
+    },
+    {
+      "name": "WorkspaceMember",
+      "fields": [
+        { "name": "id", "type": "uuid", "required": true, "primary_key": true },
+        {
+          "name": "workspace_id",
+          "type": "uuid",
+          "required": true,
+          "foreign_key": "Workspace.id"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "required": true,
+          "foreign_key": "User.id"
+        },
+        {
+          "name": "role",
+          "type": "enum",
+          "required": true,
+          "values": ["owner", "member", "readonly"]
+        },
+        { "name": "invited_at", "type": "datetime", "required": true },
+        { "name": "joined_at", "type": "datetime", "required": false },
+        {
+          "name": "status",
+          "type": "enum",
+          "required": true,
+          "values": ["pending", "active", "revoked"],
+          "default": "pending"
+        },
+        { "name": "created_at", "type": "datetime", "required": true, "default": "now" },
+        { "name": "updated_at", "type": "datetime", "required": true, "default": "now" }
+      ],
+      "unique_constraints": [
+        { "fields": ["workspace_id", "user_id"] }
+      ]
+    },
+    {
+      "name": "Subscription",
+      "fields": [
+        { "name": "id", "type": "uuid", "required": true, "primary_key": true },
+        {
+          "name": "workspace_id",
+          "type": "uuid",
+          "required": true,
+          "foreign_key": "Workspace.id"
+        },
+        {
+          "name": "stripe_subscription_id",
+          "type": "string",
+          "required": true,
+          "max_length": 255,
+          "unique": true
+        },
+        {
+          "name": "plan_id",
+          "type": "enum",
+          "required": true,
+          "values": ["basic", "pro"]
+        },
+        {
+          "name": "status",
+          "type": "enum",
+          "required": true,
+          "values": ["active", "past_due", "canceled", "trialing"]
+        },
+        { "name": "current_period_start", "type": "datetime", "required": true },
+        { "name": "current_period_end", "type": "datetime", "required": true },
+        { "name": "cancel_at_period_end", "type": "boolean", "required": true, "default": false },
+        { "name": "created_at", "type": "datetime", "required": true, "default": "now" },
+        { "name": "updated_at", "type": "datetime", "required": true, "default": "now" }
+      ]
+    },
+    {
+      "name": "UsageRecord",
+      "fields": [
+        { "name": "id", "type": "uuid", "required": true, "primary_key": true },
+        {
+          "name": "workspace_id",
+          "type": "uuid",
+          "required": true,
+          "foreign_key": "Workspace.id"
+        },
+        { "name": "date", "type": "date", "required": true },
+        { "name": "documents_processed", "type": "int", "required": true, "default": 0 },
+        { "name": "pages_processed", "type": "int", "required": true, "default": 0 },
+        { "name": "created_at", "type": "datetime", "required": true, "default": "now" }
+      ],
+      "unique_constraints": [
+        { "fields": ["workspace_id", "date"] }
+      ]
+    },
+    {
+      "name": "Project",
+      "fields": [
+        { "name": "id", "type": "uuid", "required": true, "primary_key": true },
+        {
+          "name": "workspace_id",
+          "type": "uuid",
+          "required": true,
+          "foreign_key": "Workspace.id"
+        },
+        { "name": "name", "type": "string", "required": true, "max_length": 255 },
+        { "name": "description", "type": "string", "required": false },
+        {
+          "name": "created_by_user_id",
+          "type": "uuid",
+          "required": true,
+          "foreign_key": "User.id"
+        },
+        { "name": "created_at", "type": "datetime", "required": true, "default": "now" },
+        { "name": "updated_at", "type": "datetime", "required": true, "default": "now" }
+      ]
+    },
+    {
+      "name": "Template",
+      "fields": [
+        { "name": "id", "type": "uuid", "required": true, "primary_key": true },
+        {
+          "name": "workspace_id",
+          "type": "uuid",
+          "required": true,
+          "foreign_key": "Workspace.id",
+          "index": true
+        },
+        {
+          "name": "project_id",
+          "type": "uuid",
+          "required": false,
+          "foreign_key": "Project.id",
+          "index": true
+        },
+        { "name": "name", "type": "string", "required": true, "max_length": 255 },
+        { "name": "description", "type": "string", "required": false },
+        { "name": "document_type", "type": "string", "required": false, "max_length": 128 },
+        {
+          "name": "field_schema",
+          "type": "json",
+          "required": true,
+          "description": "Array/object describing fields: name, json_key, type, required, validation, etc."
+        },
+        {
+          "name": "default_export_format",
+          "type": "enum",
+          "required": true,
+          "values": ["json", "csv", "excel"],
+          "default": "json"
+        },
+        {
+          "name": "created_by_user_id",
+          "type": "uuid",
+          "required": true,
+          "foreign_key": "User.id"
+        },
+        { "name": "last_run_at", "type": "datetime", "required": false },
+        { "name": "success_count", "type": "int", "required": true, "default": 0 },
+        { "name": "failure_count", "type": "int", "required": true, "default": 0 },
+        { "name": "created_at", "type": "datetime", "required": true, "default": "now" },
+        { "name": "updated_at", "type": "datetime", "required": true, "default": "now" }
+      ]
+    },
+    {
+      "name": "Document",
+      "fields": [
+        { "name": "id", "type": "uuid", "required": true, "primary_key": true },
+        {
+          "name": "workspace_id",
+          "type": "uuid",
+          "required": true,
+          "foreign_key": "Workspace.id",
+          "index": true
+        },
+        {
+          "name": "project_id",
+          "type": "uuid",
+          "required": false,
+          "foreign_key": "Project.id",
+          "index": true
+        },
+        {
+          "name": "template_id",
+          "type": "uuid",
+          "required": false,
+          "foreign_key": "Template.id",
+          "index": true
+        },
+        { "name": "file_name", "type": "string", "required": true },
+        { "name": "file_type", "type": "string", "required": true, "max_length": 128 },
+        { "name": "storage_path", "type": "string", "required": true },
+        { "name": "pages", "type": "int", "required": false },
+        {
+          "name": "status",
+          "type": "enum",
+          "required": true,
+          "values": ["pending", "processing", "succeeded", "failed"]
+        },
+        {
+          "name": "uploaded_by_user_id",
+          "type": "uuid",
+          "required": true,
+          "foreign_key": "User.id"
+        },
+        {
+          "name": "source",
+          "type": "enum",
+          "required": true,
+          "values": ["ui", "api"]
+        },
+        { "name": "last_error", "type": "string", "required": false },
+        { "name": "callback_url", "type": "string", "required": false },
+        { "name": "created_at", "type": "datetime", "required": true, "default": "now" },
+        { "name": "updated_at", "type": "datetime", "required": true, "default": "now" }
+      ]
+    },
+    {
+      "name": "ExtractionResult",
+      "fields": [
+        { "name": "id", "type": "uuid", "required": true, "primary_key": true },
+        {
+          "name": "document_id",
+          "type": "uuid",
+          "required": true,
+          "foreign_key": "Document.id",
+          "index": true
+        },
+        {
+          "name": "template_id",
+          "type": "uuid",
+          "required": true,
+          "foreign_key": "Template.id"
+        },
+        {
+          "name": "workspace_id",
+          "type": "uuid",
+          "required": true,
+          "foreign_key": "Workspace.id",
+          "index": true
+        },
+        { "name": "extracted_json", "type": "json", "required": true },
+        { "name": "version", "type": "int", "required": true, "default": 1 },
+        { "name": "created_at", "type": "datetime", "required": true, "default": "now" }
+      ]
+    },
+    {
+      "name": "ExtractionLog",
+      "fields": [
+        { "name": "id", "type": "uuid", "required": true, "primary_key": true },
+        {
+          "name": "document_id",
+          "type": "uuid",
+          "required": true,
+          "foreign_key": "Document.id",
+          "index": true
+        },
+        {
+          "name": "level",
+          "type": "enum",
+          "required": true,
+          "values": ["info", "warning", "error"]
+        },
+        { "name": "message", "type": "string", "required": true },
+        { "name": "metadata", "type": "json", "required": false },
+        { "name": "created_at", "type": "datetime", "required": true, "default": "now" }
+      ]
+    },
+    {
+      "name": "Job",
+      "fields": [
+        { "name": "id", "type": "uuid", "required": true, "primary_key": true },
+        {
+          "name": "type",
+          "type": "enum",
+          "required": true,
+          "values": ["document_extraction", "webhook_delivery"]
+        },
+        { "name": "payload", "type": "json", "required": true },
+        {
+          "name": "status",
+          "type": "enum",
+          "required": true,
+          "values": ["queued", "processing", "succeeded", "failed"],
+          "default": "queued"
+        },
+        { "name": "attempts", "type": "int", "required": true, "default": 0 },
+        { "name": "max_attempts", "type": "int", "required": true, "default": 5 },
+        { "name": "last_error", "type": "string", "required": false },
+        { "name": "scheduled_at", "type": "datetime", "required": true },
+        { "name": "created_at", "type": "datetime", "required": true, "default": "now" },
+        { "name": "updated_at", "type": "datetime", "required": true, "default": "now" }
+      ]
+    },
+    {
+      "name": "ApiKey",
+      "fields": [
+        { "name": "id", "type": "uuid", "required": true, "primary_key": true },
+        {
+          "name": "workspace_id",
+          "type": "uuid",
+          "required": true,
+          "foreign_key": "Workspace.id",
+          "index": true
+        },
+        { "name": "name", "type": "string", "required": true, "max_length": 255 },
+        { "name": "key_hash", "type": "string", "required": true },
+        {
+          "name": "prefix",
+          "type": "string",
+          "required": true,
+          "max_length": 16,
+          "description": "Short non-secret identifier shown in UI/logs"
+        },
+        {
+          "name": "scopes",
+          "type": "json",
+          "required": true,
+          "description": "Array of scope strings (e.g. ['documents:read','documents:write'])"
+        },
+        {
+          "name": "status",
+          "type": "enum",
+          "required": true,
+          "values": ["active", "revoked"],
+          "default": "active"
+        },
+        { "name": "expires_at", "type": "datetime", "required": false },
+        { "name": "last_used_at", "type": "datetime", "required": false },
+        { "name": "created_at", "type": "datetime", "required": true, "default": "now" }
+      ]
+    },
+    {
+      "name": "WebhookConfig",
+      "fields": [
+        { "name": "id", "type": "uuid", "required": true, "primary_key": true },
+        {
+          "name": "workspace_id",
+          "type": "uuid",
+          "required": true,
+          "foreign_key": "Workspace.id",
+          "index": true
+        },
+        { "name": "target_url", "type": "string", "required": true },
+        { "name": "secret", "type": "string", "required": true },
+        {
+          "name": "events",
+          "type": "json",
+          "required": true,
+          "description": "Array of event type strings (e.g. ['extraction.completed'])"
+        },
+        {
+          "name": "retry_policy",
+          "type": "json",
+          "required": true,
+          "description": "Config for backoff, max attempts, etc."
+        },
+        { "name": "enabled", "type": "boolean", "required": true, "default": true },
+        { "name": "created_at", "type": "datetime", "required": true, "default": "now" },
+        { "name": "updated_at", "type": "datetime", "required": true, "default": "now" }
+      ]
+    },
+    {
+      "name": "WebhookDelivery",
+      "fields": [
+        { "name": "id", "type": "uuid", "required": true, "primary_key": true },
+        {
+          "name": "webhook_config_id",
+          "type": "uuid",
+          "required": true,
+          "foreign_key": "WebhookConfig.id",
+          "index": true
+        },
+        {
+          "name": "workspace_id",
+          "type": "uuid",
+          "required": true,
+          "foreign_key": "Workspace.id",
+          "index": true
+        },
+        { "name": "event_type", "type": "string", "required": true },
+        { "name": "payload", "type": "json", "required": true },
+        { "name": "status_code", "type": "int", "required": false },
+        {
+          "name": "delivery_status",
+          "type": "enum",
+          "required": true,
+          "values": ["pending", "succeeded", "failed"],
+          "default": "pending"
+        },
+        { "name": "attempt_count", "type": "int", "required": true, "default": 0 },
+        { "name": "last_error", "type": "string", "required": false },
+        { "name": "created_at", "type": "datetime", "required": true, "default": "now" },
+        { "name": "updated_at", "type": "datetime", "required": true, "default": "now" }
+      ]
+    },
+    {
+      "name": "AuditLog",
+      "fields": [
+        { "name": "id", "type": "uuid", "required": true, "primary_key": true },
+        {
+          "name": "workspace_id",
+          "type": "uuid",
+          "required": false,
+          "foreign_key": "Workspace.id",
+          "index": true
+        },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "required": false,
+          "foreign_key": "User.id",
+          "index": true
+        },
+        {
+          "name": "actor_type",
+          "type": "enum",
+          "required": true,
+          "values": ["user", "system"]
+        },
+        { "name": "event_type", "type": "string", "required": true },
+        { "name": "description", "type": "string", "required": true },
+        { "name": "metadata", "type": "json", "required": false },
+        { "name": "created_at", "type": "datetime", "required": true, "default": "now" }
+      ]
+    },
+    {
+      "name": "Notification",
+      "fields": [
+        { "name": "id", "type": "uuid", "required": true, "primary_key": true },
+        {
+          "name": "user_id",
+          "type": "uuid",
+          "required": true,
+          "foreign_key": "User.id",
+          "index": true
+        },
+        {
+          "name": "workspace_id",
+          "type": "uuid",
+          "required": false,
+          "foreign_key": "Workspace.id"
+        },
+        {
+          "name": "channel",
+          "type": "enum",
+          "required": true,
+          "values": ["email", "in_app"]
+        },
+        {
+          "name": "event_type",
+          "type": "string",
+          "required": true,
+          "description": "Matches configured notification events (e.g. 'payment_failed')"
+        },
+        { "name": "payload", "type": "json", "required": true },
+        { "name": "read_at", "type": "datetime", "required": false },
+        { "name": "created_at", "type": "datetime", "required": true, "default": "now" }
+      ]
+    }
+  ],
+  "relationships": [
+    { "from": "User", "to": "Workspace", "type": "many_to_many", "via": "WorkspaceMember" },
+    { "from": "Workspace", "to": "Subscription", "type": "one_to_many" },
+    { "from": "Workspace", "to": "Project", "type": "one_to_many" },
+    { "from": "Workspace", "to": "Template", "type": "one_to_many" },
+    { "from": "Workspace", "to": "Document", "type": "one_to_many" },
+    { "from": "Workspace", "to": "ApiKey", "type": "one_to_many" },
+    { "from": "Workspace", "to": "WebhookConfig", "type": "one_to_many" },
+    { "from": "Workspace", "to": "UsageRecord", "type": "one_to_many" },
+    { "from": "Workspace", "to": "WebhookDelivery", "type": "one_to_many" },
+    { "from": "Workspace", "to": "AuditLog", "type": "one_to_many" },
+    { "from": "Workspace", "to": "Notification", "type": "one_to_many" },
+    { "from": "Project", "to": "Document", "type": "one_to_many" },
+    { "from": "Project", "to": "Template", "type": "one_to_many" },
+    { "from": "Template", "to": "Document", "type": "one_to_many" },
+    { "from": "Document", "to": "ExtractionResult", "type": "one_to_many" },
+    { "from": "Document", "to": "ExtractionLog", "type": "one_to_many" },
+    { "from": "WebhookConfig", "to": "WebhookDelivery", "type": "one_to_many" },
+    { "from": "User", "to": "Notification", "type": "one_to_many" }
+  ],
+  "api_endpoints": [
+    {
+      "id": "E_auth_login",
+      "method": "POST",
+      "path": "/api/auth/login",
+      "request": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "email", "type": "string", "required": true },
+            { "name": "password", "type": "string", "required": true }
+          ]
+        }
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "token", "type": "string" },
+            { "name": "user", "type": "object" },
+            { "name": "workspaces", "type": "array", "items_type": "object" },
+            { "name": "current_workspace", "type": "object" }
+          ]
+        }
+      },
+      "auth_required": false
+    },
+    {
+      "id": "E_auth_register",
+      "method": "POST",
+      "path": "/api/auth/register",
+      "request": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "full_name", "type": "string", "required": false },
+            { "name": "email", "type": "string", "required": true },
+            { "name": "password", "type": "string", "required": true },
+            { "name": "workspace_name", "type": "string", "required": true }
+          ]
+        }
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "token", "type": "string" },
+            { "name": "user", "type": "object" },
+            { "name": "workspace", "type": "object" }
+          ]
+        }
+      },
+      "auth_required": false
+    },
+    {
+      "id": "E_auth_me",
+      "method": "GET",
+      "path": "/api/auth/me",
+      "request": {
+        "query": [],
+        "body": null
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "user", "type": "object" },
+            { "name": "workspaces", "type": "array", "items_type": "object" },
+            { "name": "current_workspace", "type": "object" }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_auth_switch_workspace",
+      "method": "POST",
+      "path": "/api/auth/switch-workspace",
+      "request": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "workspace_id", "type": "uuid", "required": true }
+          ]
+        }
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "current_workspace", "type": "object" }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_projects_list",
+      "method": "GET",
+      "path": "/api/projects",
+      "request": {
+        "query": [
+          { "name": "page", "type": "int", "required": false },
+          { "name": "page_size", "type": "int", "required": false }
+        ],
+        "body": null
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "projects", "type": "array", "items_type": "Project" }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_projects_create",
+      "method": "POST",
+      "path": "/api/projects",
+      "request": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "name", "type": "string", "required": true },
+            { "name": "description", "type": "string", "required": false }
+          ]
+        }
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "project", "type": "Project" }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_projects_get",
+      "method": "GET",
+      "path": "/api/projects/{projectId}",
+      "request": {
+        "path_params": [
+          { "name": "projectId", "type": "uuid", "required": true }
+        ],
+        "query": [],
+        "body": null
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "project", "type": "Project" }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_projects_update",
+      "method": "PATCH",
+      "path": "/api/projects/{projectId}",
+      "request": {
+        "path_params": [
+          { "name": "projectId", "type": "uuid", "required": true }
+        ],
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "name", "type": "string", "required": false },
+            { "name": "description", "type": "string", "required": false }
+          ]
+        }
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "project", "type": "Project" }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_projects_delete",
+      "method": "DELETE",
+      "path": "/api/projects/{projectId}",
+      "request": {
+        "path_params": [
+          { "name": "projectId", "type": "uuid", "required": true }
+        ],
+        "body": null
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": []
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_templates_list",
+      "method": "GET",
+      "path": "/api/templates",
+      "request": {
+        "query": [
+          { "name": "project_id", "type": "uuid", "required": false }
+        ],
+        "body": null
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "templates", "type": "array", "items_type": "Template" }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_templates_create",
+      "method": "POST",
+      "path": "/api/templates",
+      "request": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "name", "type": "string", "required": true },
+            { "name": "description", "type": "string", "required": false },
+            { "name": "document_type", "type": "string", "required": false },
+            { "name": "field_schema", "type": "json", "required": true },
+            {
+              "name": "default_export_format",
+              "type": "string",
+              "required": true,
+              "enum": ["json", "csv", "excel"]
+            },
+            { "name": "project_id", "type": "uuid", "required": false }
+          ]
+        }
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "template", "type": "Template" }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_templates_get",
+      "method": "GET",
+      "path": "/api/templates/{templateId}",
+      "request": {
+        "path_params": [
+          { "name": "templateId", "type": "uuid", "required": true }
+        ],
+        "query": [],
+        "body": null
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "template", "type": "Template" }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_templates_update",
+      "method": "PUT",
+      "path": "/api/templates/{templateId}",
+      "request": {
+        "path_params": [
+          { "name": "templateId", "type": "uuid", "required": true }
+        ],
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "name", "type": "string", "required": false },
+            { "name": "description", "type": "string", "required": false },
+            { "name": "document_type", "type": "string", "required": false },
+            { "name": "field_schema", "type": "json", "required": false },
+            {
+              "name": "default_export_format",
+              "type": "string",
+              "required": false,
+              "enum": ["json", "csv", "excel"]
+            }
+          ]
+        }
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "template", "type": "Template" }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_templates_delete",
+      "method": "DELETE",
+      "path": "/api/templates/{templateId}",
+      "request": {
+        "path_params": [
+          { "name": "templateId", "type": "uuid", "required": true }
+        ],
+        "body": null
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": []
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_templates_run_test",
+      "method": "POST",
+      "path": "/api/templates/{templateId}/test",
+      "request": {
+        "path_params": [
+          { "name": "templateId", "type": "uuid", "required": true }
+        ],
+        "body": {
+          "type": "multipart",
+          "fields": [
+            { "name": "file", "type": "file", "required": true }
+          ]
+        }
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "document", "type": "Document" },
+            { "name": "extraction_result", "type": "ExtractionResult" }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_documents_upload",
+      "method": "POST",
+      "path": "/api/documents",
+      "request": {
+        "body": {
+          "type": "multipart",
+          "fields": [
+            { "name": "project_id", "type": "uuid", "required": false },
+            { "name": "template_id", "type": "uuid", "required": false },
+            { "name": "callback_url", "type": "string", "required": false },
+            { "name": "file", "type": "file", "required": true }
+          ]
+        }
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "document", "type": "Document" },
+            { "name": "job_id", "type": "uuid" }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_documents_list",
+      "method": "GET",
+      "path": "/api/documents",
+      "request": {
+        "query": [
+          { "name": "project_id", "type": "uuid", "required": false },
+          { "name": "template_id", "type": "uuid", "required": false },
+          { "name": "status", "type": "string", "required": false },
+          { "name": "page", "type": "int", "required": false },
+          { "name": "page_size", "type": "int", "required": false }
+        ],
+        "body": null
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "documents", "type": "array", "items_type": "Document" }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_documents_get",
+      "method": "GET",
+      "path": "/api/documents/{documentId}",
+      "request": {
+        "path_params": [
+          { "name": "documentId", "type": "uuid", "required": true }
+        ],
+        "query": [],
+        "body": null
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "document", "type": "Document" },
+            { "name": "extraction_result", "type": "ExtractionResult" },
+            { "name": "logs", "type": "array", "items_type": "ExtractionLog" }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_documents_retry",
+      "method": "POST",
+      "path": "/api/documents/{documentId}/retry",
+      "request": {
+        "path_params": [
+          { "name": "documentId", "type": "uuid", "required": true }
+        ],
+        "body": null
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "document", "type": "Document" },
+            { "name": "job_id", "type": "uuid" }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_extractions_export",
+      "method": "GET",
+      "path": "/api/documents/{documentId}/export",
+      "request": {
+        "path_params": [
+          { "name": "documentId", "type": "uuid", "required": true }
+        ],
+        "query": [
+          {
+            "name": "format",
+            "type": "string",
+            "required": false,
+            "enum": ["json", "csv", "excel"]
+          }
+        ],
+        "body": null
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            {
+              "name": "download_url",
+              "type": "string",
+              "description": "Pre-signed or temporary URL"
+            }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_api_keys_list",
+      "method": "GET",
+      "path": "/api/api-keys",
+      "request": {
+        "query": [],
+        "body": null
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "api_keys", "type": "array", "items_type": "ApiKey" }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_api_keys_create",
+      "method": "POST",
+      "path": "/api/api-keys",
+      "request": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "name", "type": "string", "required": true },
+            { "name": "scopes", "type": "array", "items_type": "string", "required": true },
+            { "name": "expires_at", "type": "datetime", "required": false }
+          ]
+        }
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "api_key", "type": "ApiKey" },
+            {
+              "name": "plaintext_key",
+              "type": "string",
+              "description": "Only returned once on creation"
+            }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_api_keys_revoke",
+      "method": "POST",
+      "path": "/api/api-keys/{apiKeyId}/revoke",
+      "request": {
+        "path_params": [
+          { "name": "apiKeyId", "type": "uuid", "required": true }
+        ],
+        "body": null
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "api_key", "type": "ApiKey" }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_webhooks_list",
+      "method": "GET",
+      "path": "/api/webhooks",
+      "request": {
+        "query": [],
+        "body": null
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "webhooks", "type": "array", "items_type": "WebhookConfig" }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_webhooks_create",
+      "method": "POST",
+      "path": "/api/webhooks",
+      "request": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "target_url", "type": "string", "required": true },
+            { "name": "secret", "type": "string", "required": true },
+            { "name": "events", "type": "array", "items_type": "string", "required": true },
+            { "name": "retry_policy", "type": "json", "required": true },
+            { "name": "enabled", "type": "boolean", "required": true }
+          ]
+        }
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "webhook", "type": "WebhookConfig" }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_webhooks_update",
+      "method": "PATCH",
+      "path": "/api/webhooks/{webhookId}",
+      "request": {
+        "path_params": [
+          { "name": "webhookId", "type": "uuid", "required": true }
+        ],
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "target_url", "type": "string", "required": false },
+            { "name": "secret", "type": "string", "required": false },
+            { "name": "events", "type": "array", "items_type": "string", "required": false },
+            { "name": "retry_policy", "type": "json", "required": false },
+            { "name": "enabled", "type": "boolean", "required": false }
+          ]
+        }
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "webhook", "type": "WebhookConfig" }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_webhooks_test",
+      "method": "POST",
+      "path": "/api/webhooks/{webhookId}/test",
+      "request": {
+        "path_params": [
+          { "name": "webhookId", "type": "uuid", "required": true }
+        ],
+        "body": null
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "delivery", "type": "WebhookDelivery" }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_webhooks_deliveries_list",
+      "method": "GET",
+      "path": "/api/webhooks/{webhookId}/deliveries",
+      "request": {
+        "path_params": [
+          { "name": "webhookId", "type": "uuid", "required": true }
+        ],
+        "query": [
+          { "name": "page", "type": "int", "required": false },
+          { "name": "page_size", "type": "int", "required": false }
+        ],
+        "body": null
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            {
+              "name": "deliveries",
+              "type": "array",
+              "items_type": "WebhookDelivery"
+            }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_webhooks_deliveries_retry",
+      "method": "POST",
+      "path": "/api/webhook-deliveries/{deliveryId}/retry",
+      "request": {
+        "path_params": [
+          { "name": "deliveryId", "type": "uuid", "required": true }
+        ],
+        "body": null
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "delivery", "type": "WebhookDelivery" }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_usage_summary",
+      "method": "GET",
+      "path": "/api/usage/summary",
+      "request": {
+        "query": [],
+        "body": null
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            {
+              "name": "current_period",
+              "type": "object",
+              "fields": [
+                { "name": "start", "type": "datetime" },
+                { "name": "end", "type": "datetime" }
+              ]
+            },
+            { "name": "documents_processed", "type": "int" },
+            { "name": "pages_processed", "type": "int" },
+            {
+              "name": "plan_limits",
+              "type": "object",
+              "fields": [
+                { "name": "plan_id", "type": "string" },
+                { "name": "max_pages", "type": "int" },
+                { "name": "max_team_members", "type": "int" }
+              ]
+            }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_usage_timeseries",
+      "method": "GET",
+      "path": "/api/usage/timeseries",
+      "request": {
+        "query": [
+          { "name": "from", "type": "date", "required": false },
+          { "name": "to", "type": "date", "required": false },
+          { "name": "group_by", "type": "string", "required": false }
+        ],
+        "body": null
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            {
+              "name": "data",
+              "type": "array",
+              "items_type": "object",
+              "description": "Per-day usage points"
+            }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_workspace_branding_update",
+      "method": "PATCH",
+      "path": "/api/workspace/branding",
+      "request": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "primary_color", "type": "string", "required": false },
+            { "name": "logo_url", "type": "string", "required": false },
+            { "name": "custom_domain", "type": "string", "required": false }
+          ]
+        }
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "workspace", "type": "Workspace" }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_billing_portal_link",
+      "method": "POST",
+      "path": "/api/billing/portal-link",
+      "request": {
+        "body": null
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "url", "type": "string" }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_notifications_list",
+      "method": "GET",
+      "path": "/api/notifications",
+      "request": {
+        "query": [
+          { "name": "unread_only", "type": "boolean", "required": false }
+        ],
+        "body": null
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "notifications", "type": "array", "items_type": "Notification" }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_notifications_mark_read",
+      "method": "POST",
+      "path": "/api/notifications/{notificationId}/read",
+      "request": {
+        "path_params": [
+          { "name": "notificationId", "type": "uuid", "required": true }
+        ],
+        "body": null
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": []
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_audit_logs_list",
+      "method": "GET",
+      "path": "/api/audit-logs",
+      "request": {
+        "query": [
+          { "name": "user_id", "type": "uuid", "required": false },
+          { "name": "event_type", "type": "string", "required": false },
+          { "name": "from", "type": "datetime", "required": false },
+          { "name": "to", "type": "datetime", "required": false },
+          { "name": "page", "type": "int", "required": false },
+          { "name": "page_size", "type": "int", "required": false }
+        ],
+        "body": null
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "logs", "type": "array", "items_type": "AuditLog" }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_admin_workspaces_list",
+      "method": "GET",
+      "path": "/api/admin/workspaces",
+      "request": {
+        "query": [
+          { "name": "status", "type": "string", "required": false },
+          { "name": "page", "type": "int", "required": false },
+          { "name": "page_size", "type": "int", "required": false }
+        ],
+        "body": null
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "workspaces", "type": "array", "items_type": "Workspace" }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_admin_impersonate",
+      "method": "POST",
+      "path": "/api/admin/workspaces/{workspaceId}/impersonate-owner",
+      "request": {
+        "path_params": [
+          { "name": "workspaceId", "type": "uuid", "required": true }
+        ],
+        "body": null
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            {
+              "name": "token",
+              "type": "string",
+              "description": "JWT for impersonated owner user"
+            }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_admin_audit_logs_list",
+      "method": "GET",
+      "path": "/api/admin/audit-logs",
+      "request": {
+        "query": [
+          { "name": "workspace_id", "type": "uuid", "required": false },
+          { "name": "actor_type", "type": "string", "required": false },
+          { "name": "from", "type": "datetime", "required": false },
+          { "name": "to", "type": "datetime", "required": false },
+          { "name": "page", "type": "int", "required": false },
+          { "name": "page_size", "type": "int", "required": false }
+        ],
+        "body": null
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "logs", "type": "array", "items_type": "AuditLog" }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_public_extract_via_api_key",
+      "method": "POST",
+      "path": "/api/v1/documents:extract",
+      "request": {
+        "headers": [
+          {
+            "name": "Authorization",
+            "type": "string",
+            "required": true,
+            "description": "Bearer <API_KEY>"
+          }
+        ],
+        "body": {
+          "type": "multipart",
+          "fields": [
+            { "name": "template_id", "type": "uuid", "required": true },
+            { "name": "callback_url", "type": "string", "required": false },
+            { "name": "file", "type": "file", "required": true }
+          ]
+        }
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "document_id", "type": "uuid" },
+            { "name": "status", "type": "string", "description": "Initial status, e.g. 'pending'" }
+          ]
+        }
+      },
+      "auth_required": true
+    },
+    {
+      "id": "E_public_get_document_status",
+      "method": "GET",
+      "path": "/api/v1/documents/{documentId}",
+      "request": {
+        "headers": [
+          {
+            "name": "Authorization",
+            "type": "string",
+            "required": true,
+            "description": "Bearer <API_KEY>"
+          }
+        ],
+        "path_params": [
+          { "name": "documentId", "type": "uuid", "required": true }
+        ],
+        "query": [],
+        "body": null
+      },
+      "response": {
+        "body": {
+          "type": "json",
+          "fields": [
+            { "name": "document_id", "type": "uuid" },
+            { "name": "status", "type": "string" },
+            { "name": "result", "type": "object", "required": false }
+          ]
+        }
+      },
+      "auth_required": true
+    }
+  ]
+}

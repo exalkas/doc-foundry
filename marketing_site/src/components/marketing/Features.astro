@@ -1,0 +1,54 @@
+---
+interface Feature {
+  name: string;
+  description: string;
+  icon?: string;
+}
+
+const features: Feature[] = [
+  {
+    name: 'Custom Extraction Templates',
+    description: 'Define schemas once, map fields visually, and extract consistent JSON, CSV, and Excel via API, webhooks, or automation platforms.',
+  },
+  {
+    name: 'API & Webhook Access',
+    description: 'Integrate document parsing into your apps and workflows with REST APIs, webhooks, and support for Zapier, Make, and n8n.',
+  },
+  {
+    name: 'Multi-Tenant Companies',
+    description: 'Organize documents and templates into project folders with company-based access control and usage metering per subscription.',
+  },
+  {
+    name: 'Observable Processing',
+    description: 'Track every extraction with logs, status history, and retry logic. Monitor processing volume and costs with detailed usage metrics.',
+  },
+];
+---
+
+<section class="py-24 sm:py-32 bg-slate-50 dark:bg-slate-800">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-2xl text-center">
+      <h2 class="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl dark:text-slate-100">
+        Everything you need to extract structured data
+      </h2>
+      <p class="mt-4 text-lg text-slate-600 dark:text-slate-400">
+        Built for developers, ops teams, and automation consultants who need reliable document parsing.
+      </p>
+    </div>
+    <div class="mx-auto mt-16 max-w-4xl">
+      <div class="grid grid-cols-1 gap-8 sm:grid-cols-2">
+        {features.map((feature) => (
+          <div class="rounded-lg border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-900">
+            <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100">
+              {feature.name}
+            </h3>
+            <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
+              {feature.description}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+

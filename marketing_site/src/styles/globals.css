@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --color-primary: #2563EB;
+        --color-secondary: #0F172A;
+        --color-accent: #22C55E;
+    }
+
+    html {
+        font-family: 'Inter', system-ui, sans-serif;
+    }
+}

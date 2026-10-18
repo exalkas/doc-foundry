@@ -1,0 +1,51 @@
+---
+interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+const faqs: FAQItem[] = [
+  {
+    question: 'What document types are supported?',
+    answer: 'DocFoundry.app supports PDFs, images (PNG, JPG), receipts, invoices, contracts, shipping documents, CVs, forms, and scans. You can create custom extraction templates for any structured document format.',
+  },
+  {
+    question: 'How do I integrate with Zapier, Make, or n8n?',
+    answer: 'Use our REST API or webhooks to connect DocFoundry.app to your automation workflows. We provide step-by-step guides and example payloads for each platform in the Integrations section.',
+  },
+  {
+    question: 'Can I use my own API keys?',
+    answer: 'Yes, you can create company-scoped API keys with custom scopes. API keys are used for programmatic access to the extraction API and webhook configuration.',
+  },
+  {
+    question: 'What happens if an extraction fails?',
+    answer: 'Failed extractions are logged with detailed error messages. You can retry extractions manually or configure automatic retries. All extraction attempts are tracked in the extraction logs.',
+  },
+];
+---
+
+<section class="py-24 sm:py-32 bg-white dark:bg-slate-900">
+  <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-3xl">
+      <h2 class="text-3xl font-bold tracking-tight text-slate-900 text-center sm:text-4xl dark:text-slate-100">
+        Frequently asked questions
+      </h2>
+      <div class="mt-12 space-y-6">
+        {faqs.map((faq, index) => (
+          <details class="group rounded-lg border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-800">
+            <summary class="flex cursor-pointer items-center justify-between text-lg font-semibold text-slate-900 dark:text-slate-100">
+              <span>{faq.question}</span>
+              <svg class="h-5 w-5 flex-shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </summary>
+            <p class="mt-4 text-sm text-slate-600 dark:text-slate-400">
+              {faq.answer}
+            </p>
+          </details>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+

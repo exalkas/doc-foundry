@@ -1,0 +1,62 @@
+fastapi[all]==0.115.0
+uvicorn[standard]==0.30.6
+
+SQLAlchemy==2.0.36
+asyncpg==0.30.0
+
+psycopg2-binary==2.9.10
+bcrypt==4.2.0
+
+pydantic==2.9.2
+pydantic-settings==2.6.1
+
+python-dotenv==1.0.1
+
+passlib[bcrypt]==1.7.4
+python-jose[cryptography]==3.3.0
+email-validator==2.2.0
+
+httpx==0.27.2
+
+python-multipart==0.0.10
+
+orjson==3.10.7
+ujson==5.10.0
+
+loguru==0.7.2
+
+tenacity==9.0.0
+
+stripe==10.7.0
+
+# OCR and document processing - Google Cloud Vision
+google-cloud-vision>=3.0.0
+google-auth>=2.0.0
+Pillow==10.4.0
+pypdf==5.1.0
+
+# Excel export
+openpyxl==3.1.5
+
+# File type validation
+python-magic==0.4.27
+
+# Structured logging
+structlog==24.4.0
+
+# Scheduled tasks
+APScheduler==3.10.4
+
+# Email notifications
+resend==2.1.0
+
+# AI / LLM
+openai>=1.0.0
+
+# Rate limiting
+slowapi==0.1.9
+redis==5.0.1
+
+# Testing
+pytest==8.3.3
+pytest-asyncio==0.24.0
